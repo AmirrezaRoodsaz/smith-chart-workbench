@@ -29,4 +29,26 @@ describe('network evaluation', () => {
     expect(abs(sub(pts[0], gammaFromZ(cx(10, -90), 50)))).toBeCloseTo(0, 9)
     expect(abs(sub(pts[64], gammaFromZ(transformImpedance(cx(10, -90), e, 1.085e9), 50)))).toBeCloseTo(0, 9)
   })
+  test('arcPoints for seriesC stays finite and starts/ends correctly', () => {
+    const e = el('seriesC', 2e-12)
+    const zIn = cx(50, 74)
+    const pts = arcPoints(zIn, e, 1.085e9, 50)
+    expect(abs(sub(pts[0], gammaFromZ(zIn, 50)))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(zIn, e, 1.085e9), 50)))).toBeCloseTo(0, 9)
+    for (const p of pts) {
+      expect(Number.isFinite(p.re)).toBe(true)
+      expect(Number.isFinite(p.im)).toBe(true)
+    }
+  })
+  test('arcPoints for stubOpen stays finite and starts/ends correctly', () => {
+    const e: CircuitElement = { id: 'stubOpen45', kind: 'stubOpen', value: 45, lineZ0: 50, enabled: true }
+    const zIn = cx(50, 74)
+    const pts = arcPoints(zIn, e, 1.085e9, 50)
+    expect(abs(sub(pts[0], gammaFromZ(zIn, 50)))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(zIn, e, 1.085e9), 50)))).toBeCloseTo(0, 9)
+    for (const p of pts) {
+      expect(Number.isFinite(p.re)).toBe(true)
+      expect(Number.isFinite(p.im)).toBe(true)
+    }
+  })
 })

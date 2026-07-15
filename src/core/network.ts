@@ -15,7 +15,12 @@ export function evaluateChain(zLoad: Complex, elements: CircuitElement[], fHz: n
 export function arcPoints(
   zIn: Complex, el: CircuitElement, fHz: number, z0: number, steps = 64,
 ): Complex[] {
-  return Array.from({ length: steps + 1 }, (_, i) =>
-    gammaFromZ(transformImpedance(zIn, { ...el, value: (el.value * i) / steps }, fHz), z0),
-  )
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    // i=0 computed directly (not via transformImpedance) to dodge tan(0) and value=0 singularities.
+    if (i === 0) return gammaFromZ(zIn, z0)
+    const t = i / steps
+    // seriesC/shuntC sweep capacitance value/t (huge->final), so reactance -1/(wC) ramps 0->final linearly.
+    const swept = el.kind === 'seriesC' || el.kind === 'shuntC' ? el.value / t : el.value * t
+    return gammaFromZ(transformImpedance(zIn, { ...el, value: swept }, fHz), z0)
+  })
 }

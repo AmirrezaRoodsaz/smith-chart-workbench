@@ -1,32 +1,14 @@
-# React + TypeScript + Vite
+# Smith Chart Workbench
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interactive web Smith chart for ham radio operators, hobbyists, and anyone who
+just watched [the Veritasium video](https://www.youtube.com/watch?v=GK2pZ_oVU1o)
+and wants to actually play with the thing.
 
-Currently, two official plugins are available:
+**Current status:** interactive chart — crisp SVG grid with deep zoom/pan and a
+hover-anywhere readout (Z, Y, Γ, VSWR, return loss, mismatch loss).
+Matching workbench, NanoVNA import, and guided learning mode are in progress
+(see `docs/superpowers/specs/`).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Develop
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+npm install && npm run dev — tests: npm test — build: npm run build

@@ -20,3 +20,12 @@ body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-ser
 .grid-line { fill: none; stroke: var(--grid); stroke-width: 1px; vector-effect: non-scaling-stroke; }
 .grid-emph { stroke: var(--grid-emph); }
 .chart-center { fill: var(--accent); }
+
+.chart-area { gap: 1rem; padding: 0 1rem 1rem; }
+.readout { min-width: 14rem; font-variant-numeric: tabular-nums; }
+.readout table { border-collapse: collapse; width: 100%; }
+.readout th { text-align: left; padding: 0.15rem 0.75rem 0.15rem 0; color: var(--grid-emph); font-weight: 500; }
+.readout td { text-align: right; }
+.readout-empty { color: var(--grid-emph); }
+.crosshair circle { fill: var(--accent); }
+@media (max-width: 700px) { .chart-area { flex-direction: column; align-items: center; } }

@@ -25,8 +25,9 @@ function zoomAbout(v: ViewBox, px: number, py: number, factor: number): ViewBox 
   return { x: px - (px - v.x) * s, y: py - (py - v.y) * s, w }
 }
 
-export function SmithChart(_props: SmithChartProps) {
+export function SmithChart(props: SmithChartProps) {
   const [view, setView] = useState<ViewBox>(HOME_VIEW)
+  const [hover, setHover] = useState<Complex | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
 
@@ -41,7 +42,16 @@ export function SmithChart(_props: SmithChartProps) {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
   }
 
+  function updateHover(e: React.PointerEvent<SVGSVGElement>) {
+    const p = clientToSvg(svgRef.current!, e.clientX, e.clientY)
+    const g = { re: p.x, im: -p.y }
+    const inside = Math.hypot(g.re, g.im) <= 1
+    setHover(inside ? g : null)
+    props.onHoverGamma?.(inside ? g : null)
+  }
+
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    updateHover(e)
     const svg = svgRef.current!
     const prev = pointers.current.get(e.pointerId)
     if (!prev) return
@@ -100,6 +110,12 @@ export function SmithChart(_props: SmithChartProps) {
         <path key={`x${v}`} d={d} className={Math.abs(v) === 1 ? 'grid-line grid-emph' : 'grid-line'} />
       ))}
       <circle cx={0} cy={0} r={0.008} className="chart-center" />
+      {hover && (
+        <g className="crosshair">
+          {/* radius scales with the viewBox so the dot stays cursor-sized at any zoom */}
+          <circle cx={hover.re} cy={-hover.im} r={view.w * 0.006} />
+        </g>
+      )}
     </svg>
   )
 }

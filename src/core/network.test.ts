@@ -51,4 +51,30 @@ describe('network evaluation', () => {
       expect(Number.isFinite(p.im)).toBe(true)
     }
   })
+  test('arcPoints for shuntC is continuous (no jump at i=1) and starts/ends correctly', () => {
+    const e = el('shuntC', 2e-12)
+    const zIn = cx(50, 74)
+    const pts = arcPoints(zIn, e, 1.085e9, 50)
+    const first = gammaFromZ(zIn, 50)
+    expect(abs(sub(pts[0], first))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[1], first))).toBeLessThan(0.1)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(zIn, e, 1.085e9), 50)))).toBeCloseTo(0, 9)
+    for (const p of pts) {
+      expect(Number.isFinite(p.re)).toBe(true)
+      expect(Number.isFinite(p.im)).toBe(true)
+    }
+  })
+  test('arcPoints for shuntL is continuous (no jump at i=1) and starts/ends correctly', () => {
+    const e = el('shuntL', 13.2e-9)
+    const zIn = cx(50, 74)
+    const pts = arcPoints(zIn, e, 1.085e9, 50)
+    const first = gammaFromZ(zIn, 50)
+    expect(abs(sub(pts[0], first))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[1], first))).toBeLessThan(0.1)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(zIn, e, 1.085e9), 50)))).toBeCloseTo(0, 9)
+    for (const p of pts) {
+      expect(Number.isFinite(p.re)).toBe(true)
+      expect(Number.isFinite(p.im)).toBe(true)
+    }
+  })
 })

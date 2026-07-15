@@ -5,6 +5,7 @@ describe('units', () => {
   test('formatEng picks SI prefix', () => {
     expect(formatEng(13.2e-9, 'H')).toBe('13.2 nH')
     expect(formatEng(1.085e9, 'Hz')).toBe('1.09 GHz')
+    expect(formatEng(-1.085e9, 'Hz')).toBe('-1.09 GHz')
     expect(formatEng(50, 'Ω')).toBe('50.0 Ω')
     expect(formatEng(0, 'Ω')).toBe('0 Ω')
     expect(formatEng(Infinity, '')).toBe('∞')

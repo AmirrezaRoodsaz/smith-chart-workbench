@@ -11,9 +11,9 @@ export function formatEng(value: number, unit: string, digits = 3): string {
   const mag = Math.abs(value)
   const [factor, prefix] = PREFIXES.find(([f]) => mag >= f) ?? PREFIXES[PREFIXES.length - 1]
   const scaled = value / factor
-  // Add tiny epsilon to handle floating-point rounding edge cases
-  const epsilon = 1e-14 * Math.abs(scaled)
-  return `${(scaled + epsilon).toPrecision(digits)} ${prefix}${unit}`.trim()
+  // Nudge magnitude up by 1e-14 relative to fix float rounding, sign-symmetric
+  const corrected = scaled * (1 + 1e-14)
+  return `${corrected.toPrecision(digits)} ${prefix}${unit}`.trim()
 }
 
 export function degToMeters(deg: number, fHz: number, vf = 1): number {

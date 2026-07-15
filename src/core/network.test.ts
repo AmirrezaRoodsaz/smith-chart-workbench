@@ -1,0 +1,32 @@
+import { describe, expect, test } from 'vitest'
+import { abs, cx, sub } from './complex'
+import { transformImpedance, type CircuitElement } from './elements'
+import { arcPoints, evaluateChain } from './network'
+import { gammaFromZ } from './transform'
+
+const el = (kind: CircuitElement['kind'], value: number, enabled = true): CircuitElement =>
+  ({ id: kind + value, kind, value, enabled })
+
+describe('network evaluation', () => {
+  test('empty chain returns just the load', () => {
+    expect(evaluateChain(cx(36, 74), [], 1e9)).toEqual([cx(36, 74)])
+  })
+  test('stages accumulate in order', () => {
+    const chain = [el('seriesR', 14), el('seriesC', 2e-12)]
+    const stages = evaluateChain(cx(36, 74), chain, 1.085e9)
+    expect(stages).toHaveLength(3)
+    expect(stages[1]).toEqual({ re: 50, im: 74 })
+    expect(stages[2].re).toBeCloseTo(50, 9)
+  })
+  test('disabled element is skipped', () => {
+    const stages = evaluateChain(cx(36, 74), [el('seriesR', 14, false)], 1e9)
+    expect(stages[1]).toEqual({ re: 36, im: 74 })
+  })
+  test('arcPoints starts at Γ(zIn) and ends at Γ(transformed z)', () => {
+    const e = el('seriesL', 13.2e-9)
+    const pts = arcPoints(cx(10, -90), e, 1.085e9, 50)
+    expect(pts).toHaveLength(65)
+    expect(abs(sub(pts[0], gammaFromZ(cx(10, -90), 50)))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(cx(10, -90), e, 1.085e9), 50)))).toBeCloseTo(0, 9)
+  })
+})

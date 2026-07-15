@@ -1,4 +1,4 @@
-import { abs, arg, type Complex } from '../core/complex'
+import { abs, arg, cx, sub, type Complex } from '../core/complex'
 import { mismatchLossDb, returnLossDb, vswrFromGamma, yFromZ, zFromGamma } from '../core/transform'
 
 const jstr = (c: Complex, digits = 3): string =>
@@ -11,7 +11,7 @@ export function formatReadout(gamma: Complex, z0: number): ReadoutRow[] {
   const zn = zFromGamma(gamma, 1)
   const y = yFromZ(z)
   const vswr = vswrFromGamma(gamma)
-  const finite = Number.isFinite(z.re) && Number.isFinite(z.im) && abs(gamma) < 0.99999
+  const finite = Number.isFinite(z.re) && Number.isFinite(z.im) && abs(sub(cx(1), gamma)) > 1e-6
 
   return [
     { label: 'Z', value: finite ? `${jstr(z)} Ω` : '∞' },

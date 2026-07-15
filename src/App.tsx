@@ -20,7 +20,11 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>Smith Chart</h1>
-        <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+        <button
+          className="theme-toggle"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+        >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
       </header>

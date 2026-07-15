@@ -99,6 +99,10 @@ export function SmithChart(props: SmithChartProps) {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onPointerLeave={() => {
+        setHover(null)
+        props.onHoverGamma?.(null)
+      }}
       onDoubleClick={() => setView(HOME_VIEW)}
     >
       <circle cx={0} cy={0} r={1} className="chart-rim" />

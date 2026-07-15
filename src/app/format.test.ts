@@ -17,4 +17,13 @@ describe('formatReadout', () => {
     const rows = formatReadout(cx(1, 0), 50)
     expect(rows.find((r) => r.label === 'VSWR')!.value).toBe('∞')
   })
+  test('short circuit reads 0 Ω, not ∞', () => {
+    const rows = formatReadout(cx(-1, 0), 50)
+    expect(rows.find((r) => r.label === 'Z')!.value.startsWith('0.00')).toBe(true)
+    expect(rows.find((r) => r.label === 'VSWR')!.value).toBe('∞')
+  })
+  test('pure reactance on the rim reads a finite Z, not ∞', () => {
+    const rows = formatReadout(cx(0, 1), 50)
+    expect(rows.find((r) => r.label === 'Z')!.value).toContain('j50')
+  })
 })

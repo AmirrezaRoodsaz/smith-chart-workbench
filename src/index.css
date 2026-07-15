@@ -7,12 +7,22 @@
   --accent: #c8401a;
 }
 
+[data-theme='dark'] {
+  --bg: #12181d;
+  --fg: #e8ecef;
+  --grid: #33424e;
+  --grid-emph: #5d7686;
+  --rim: #8fa6b5;
+  --accent: #ff6a3d;
+}
+
 * { box-sizing: border-box; margin: 0; }
 html, body, #root { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
 
 .app { display: flex; flex-direction: column; height: 100%; }
-.app-header { padding: 0.5rem 1rem; }
+.app-header { padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+.theme-toggle { background: none; border: 1px solid var(--grid); border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; }
 .chart-area { flex: 1; min-height: 0; display: flex; justify-content: center; }
 .smith-chart { height: 100%; max-width: 100%; touch-action: none; }
 

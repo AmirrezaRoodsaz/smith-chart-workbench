@@ -1,12 +1,22 @@
 import { useMemo, useRef, useState } from 'react'
 import type { Complex } from '../core/complex'
 import { gridPathR, gridPathX, gridValues } from './geometry'
+import { qArcPath, rulerTicks, vswrRadius, Q_VALUES, VSWR_VALUES } from './overlays'
 
 export interface ViewBox { x: number; y: number; w: number }
-export const HOME_VIEW: ViewBox = { x: -1.1, y: -1.1, w: 2.2 }
+export const HOME_VIEW: ViewBox = { x: -1.15, y: -1.15, w: 2.3 }
+
+export interface ChartArc { id: string; d: string; colorIndex: number }
+export interface ChartMarker { gamma: Complex; kind: 'load' | 'input' }
 
 export interface SmithChartProps {
   onHoverGamma?: (g: Complex | null) => void
+  gridMode?: 'z' | 'y' | 'zy'
+  showVswr?: boolean
+  showQ?: boolean
+  showRuler?: boolean
+  arcs?: ChartArc[]
+  markers?: ChartMarker[]
 }
 
 export function clientToSvg(svg: SVGSVGElement, clientX: number, clientY: number) {
@@ -25,7 +35,15 @@ function zoomAbout(v: ViewBox, px: number, py: number, factor: number): ViewBox 
   return { x: px - (px - v.x) * s, y: py - (py - v.y) * s, w }
 }
 
-export function SmithChart(props: SmithChartProps) {
+export function SmithChart({
+  gridMode = 'z',
+  showVswr = false,
+  showQ = false,
+  showRuler = false,
+  arcs = [],
+  markers = [],
+  ...props
+}: SmithChartProps) {
   const [view, setView] = useState<ViewBox>(HOME_VIEW)
   const [hover, setHover] = useState<Complex | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
@@ -88,6 +106,18 @@ export function SmithChart(props: SmithChartProps) {
     }
   }, [view.w])
 
+  const gridEls = (
+    <>
+      <line x1={-1} y1={0} x2={1} y2={0} className="grid-line" />
+      {grid.r.map(({ v, d }) => (
+        <path key={`r${v}`} d={d} className={v === 1 ? 'grid-line grid-emph' : 'grid-line'} />
+      ))}
+      {grid.x.map(({ v, d }) => (
+        <path key={`x${v}`} d={d} className={Math.abs(v) === 1 ? 'grid-line grid-emph' : 'grid-line'} />
+      ))}
+    </>
+  )
+
   return (
     <svg
       ref={svgRef}
@@ -106,12 +136,43 @@ export function SmithChart(props: SmithChartProps) {
       onDoubleClick={() => setView(HOME_VIEW)}
     >
       <circle cx={0} cy={0} r={1} className="chart-rim" />
-      <line x1={-1} y1={0} x2={1} y2={0} className="grid-line" />
-      {grid.r.map(({ v, d }) => (
-        <path key={`r${v}`} d={d} className={v === 1 ? 'grid-line grid-emph' : 'grid-line'} />
+      {(gridMode === 'z' || gridMode === 'zy') && <g className="grid-z">{gridEls}</g>}
+      {(gridMode === 'y' || gridMode === 'zy') && (
+        <g className={gridMode === 'zy' ? 'grid-y grid-faint' : 'grid-y'} transform="rotate(180)">
+          {gridEls}
+        </g>
+      )}
+      {showVswr &&
+        VSWR_VALUES.map((s) => <circle key={`v${s}`} cx={0} cy={0} r={vswrRadius(s)} className="overlay-vswr" />)}
+      {showQ &&
+        Q_VALUES.flatMap((q) =>
+          ([1, -1] as const).map((sg) => <path key={`q${q}${sg}`} d={qArcPath(q, sg)} className="overlay-q" />)
+        )}
+      {showRuler && (
+        <g className="ruler">
+          {rulerTicks().map((t, i) => (
+            <g key={i}>
+              <line x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} />
+              {t.label && (
+                <text x={t.lx} y={t.ly} fontSize={0.028} textAnchor="middle" dominantBaseline="middle">
+                  {t.label}
+                </text>
+              )}
+            </g>
+          ))}
+        </g>
+      )}
+      {arcs.map((a) => (
+        <path key={a.id} d={a.d} className="el-arc" style={{ stroke: `var(--arc-${a.colorIndex})` }} />
       ))}
-      {grid.x.map(({ v, d }) => (
-        <path key={`x${v}`} d={d} className={Math.abs(v) === 1 ? 'grid-line grid-emph' : 'grid-line'} />
+      {markers.map((m, i) => (
+        <circle
+          key={i}
+          cx={m.gamma.re}
+          cy={-m.gamma.im}
+          r={view.w * 0.009}
+          className={m.kind === 'load' ? 'marker-load' : 'marker-input'}
+        />
       ))}
       <circle cx={0} cy={0} r={0.008} className="chart-center" />
       {hover && (

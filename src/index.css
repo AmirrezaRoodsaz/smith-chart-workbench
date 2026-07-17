@@ -5,6 +5,9 @@
   --grid-emph: #6b7f8d;
   --rim: #33454f;
   --accent: #c8401a;
+  --grid-y: #caa06a;
+  --arc-0: #c8401a; --arc-1: #1a6ec8; --arc-2: #1a9e50;
+  --arc-3: #a53ac0; --arc-4: #c07a1a; --arc-5: #0e9aa7;
 }
 
 [data-theme='dark'] {
@@ -14,6 +17,9 @@
   --grid-emph: #5d7686;
   --rim: #8fa6b5;
   --accent: #ff6a3d;
+  --grid-y: #8a6d3f;
+  --arc-0: #ff6a3d; --arc-1: #5da2f0; --arc-2: #3fce7f;
+  --arc-3: #cf7fe0; --arc-4: #e0a44e; --arc-5: #38c4d0;
 }
 
 * { box-sizing: border-box; margin: 0; }
@@ -39,3 +45,13 @@ body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-ser
 .readout-empty { color: var(--grid-emph); }
 .crosshair circle { fill: var(--accent); }
 @media (max-width: 700px) { .chart-area { flex-direction: column; align-items: center; } }
+
+.grid-y .grid-line { stroke: var(--grid-y); }
+.grid-faint { opacity: 0.45; }
+.overlay-vswr { fill: none; stroke: var(--accent); stroke-width: 1px; vector-effect: non-scaling-stroke; opacity: 0.5; stroke-dasharray: 4 3; }
+.overlay-q { fill: none; stroke: var(--grid-emph); stroke-width: 1px; vector-effect: non-scaling-stroke; opacity: 0.6; stroke-dasharray: 2 3; }
+.ruler line { stroke: var(--grid-emph); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.ruler text { fill: var(--grid-emph); }
+.el-arc { fill: none; stroke-width: 2.5px; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.marker-load { fill: none; stroke: var(--fg); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.marker-input { fill: var(--accent); }

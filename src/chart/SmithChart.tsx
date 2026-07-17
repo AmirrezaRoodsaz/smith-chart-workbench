@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Complex } from '../core/complex'
 import { gridPathR, gridPathX, gridValues } from './geometry'
 import { qArcPath, rulerTicks, vswrRadius, Q_VALUES, VSWR_VALUES } from './overlays'
@@ -49,13 +49,20 @@ export function SmithChart({
   const svgRef = useRef<SVGSVGElement>(null)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
 
-  function onWheel(e: React.WheelEvent<SVGSVGElement>) {
-    const svg = svgRef.current!
-    const p = clientToSvg(svg, e.clientX, e.clientY)
-    setView((v) => zoomAbout(v, p.x, p.y, e.deltaY > 0 ? 1.2 : 1 / 1.2))
-  }
+  useEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const h = (e: WheelEvent) => {
+      e.preventDefault()
+      const p = clientToSvg(svg, e.clientX, e.clientY)
+      setView((v) => zoomAbout(v, p.x, p.y, e.deltaY > 0 ? 1.2 : 1 / 1.2))
+    }
+    svg.addEventListener('wheel', h, { passive: false })
+    return () => svg.removeEventListener('wheel', h)
+  }, [])
 
   function onPointerDown(e: React.PointerEvent<SVGSVGElement>) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
     e.currentTarget.setPointerCapture(e.pointerId)
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
   }
@@ -124,7 +131,6 @@ export function SmithChart({
       className="smith-chart"
       viewBox={`${view.x} ${view.y} ${view.w} ${view.w}`}
       preserveAspectRatio="xMidYMid meet"
-      onWheel={onWheel}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

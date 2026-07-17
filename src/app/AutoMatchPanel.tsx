@@ -20,7 +20,7 @@ export function AutoMatchPanel({ state, dispatch }: { state: AppState; dispatch:
       {!matched && sols.length === 0 && <p className="hint">No closed-form solution for this load.</p>}
       <ul>
         {sols.map((s) => (
-          <li key={s.label}>
+          <li key={s.elements[0]?.id ?? s.label}>
             <button
               title="Replaces the current network"
               onClick={() => dispatch({ type: 'replaceChain', elements: s.elements.map((e) => ({ ...e, id: newId() })) })}>

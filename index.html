@@ -7,6 +7,13 @@
     <title>Smith Chart</title>
   </head>
   <body>
+    <script>
+      try {
+        var t = localStorage.getItem('smith-theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      } catch (e) { /* no-op */ }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

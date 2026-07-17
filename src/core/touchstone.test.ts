@@ -57,6 +57,10 @@ describe('parseTouchstone', () => {
     expect(() => parseTouchstone('# Hz S RI R 50\n1e6 1e200 0\n')).toThrow(TouchstoneError)
     expect(() => parseTouchstone('# Hz S DB R 50\n1e6 7000 0\n')).toThrow(TouchstoneError)
   })
+  test('rejects non-positive frequencies', () => {
+    expect(() => parseTouchstone('# Hz S RI R 50\n0 0.1 0\n')).toThrow(TouchstoneError)
+    expect(() => parseTouchstone('# MHz S MA R 50\n-14 0.5 0\n')).toThrow(TouchstoneError)
+  })
   test('rejects non-S files and garbage with friendly errors', () => {
     expect(() => parseTouchstone('# MHz Z MA R 50\n14 1 0\n')).toThrow(TouchstoneError)
     expect(() => parseTouchstone('# MHz S MA R 50\n14 banana 0\n')).toThrow(TouchstoneError)

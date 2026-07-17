@@ -7,8 +7,9 @@ and wants to actually play with the thing.
 **Current status:** matching workbench — element palette (L/C/R, lines, stubs) with
 live arcs and slider tuning, undo/redo, shareable URL state, VSWR/Q circle overlays,
 impedance/admittance grids, wavelength ruler, and one-click auto-match (all L-network
-and single-stub solutions). NanoVNA/Touchstone import and guided learning mode are next
-(see `docs/superpowers/specs/`).
+and single-stub solutions). NanoVNA/Touchstone import, band curves, a VSWR strip chart,
+PNG export, and Playwright-gated CI have shipped. Guided learning mode (the teaching
+layer) is next (see `docs/superpowers/specs/`).
 
 ## Develop
 

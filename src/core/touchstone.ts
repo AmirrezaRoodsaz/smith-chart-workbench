@@ -44,6 +44,7 @@ export function parseTouchstone(text: string): TouchstoneData {
   const points: SweepPoint[] = rows.map((r) => {
     if (r.length !== 3 && r.length !== 9)
       throw new TouchstoneError(`Expected 1-port (3 columns) or 2-port (9 columns) data, got ${r.length} columns`)
+    if (!(r[0] > 0)) throw new TouchstoneError('Frequencies must be positive')
     const [a, b] = [r[1], r[2]]
     let g: Complex
     if (format === 'ri') g = cx(a, b)

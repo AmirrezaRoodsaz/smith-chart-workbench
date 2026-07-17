@@ -143,7 +143,7 @@ export default function App() {
             const svg = document.querySelector<SVGSVGElement>('svg.smith-chart')
             if (svg) void exportChartPng(svg, getComputedStyle(document.body).backgroundColor)
           }}>📷</button>
-          <button aria-label="Copy network summary" onClick={() => navigator.clipboard.writeText(networkSummary(state, derived.vswr))}>📋</button>
+          <button aria-label="Copy network summary" onClick={() => navigator.clipboard.writeText(networkSummary(state, derived.vswr, derived.zLoad, sweep?.name))}>📋</button>
           <button className="theme-toggle" aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? '☀️' : '🌙'}

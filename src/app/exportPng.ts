@@ -3,7 +3,7 @@ export async function exportChartPng(svg: SVGSVGElement, background: string, sca
   const clone = svg.cloneNode(true) as SVGSVGElement
   const src = svg.querySelectorAll<SVGElement>('*')
   const dst = clone.querySelectorAll<SVGElement>('*')
-  const PROPS = ['stroke', 'fill', 'stroke-width', 'stroke-dasharray', 'opacity', 'font-size', 'text-anchor'] as const
+  const PROPS = ['stroke', 'fill', 'stroke-width', 'stroke-dasharray', 'opacity', 'font-size', 'text-anchor', 'vector-effect', 'font-family'] as const
   src.forEach((el, i) => {
     const cs = getComputedStyle(el)
     for (const p of PROPS) dst[i].setAttribute(p, cs.getPropertyValue(p))

@@ -1,5 +1,5 @@
 export interface History<S> { past: S[]; present: S; future: S[]; key?: string }
-export type HistoryAction<A> = A | { type: 'undo' } | { type: 'redo' }
+export type HistoryAction<A> = A | { type: 'undo' } | { type: 'redo' } | { type: 'endCoalesce' }
 
 const LIMIT = 100
 
@@ -9,6 +9,9 @@ export function withHistory<S, A extends { type: string; coalesce?: string }>(
   reduce: (s: S, a: A) => S,
 ): (h: History<S>, a: HistoryAction<A>) => History<S> {
   return (h, a) => {
+    if (a.type === 'endCoalesce') {
+      return h.key === undefined ? h : { ...h, key: undefined }
+    }
     if (a.type === 'undo') {
       if (h.past.length === 0) return h
       return { past: h.past.slice(0, -1), present: h.past[h.past.length - 1], future: [h.present, ...h.future] }

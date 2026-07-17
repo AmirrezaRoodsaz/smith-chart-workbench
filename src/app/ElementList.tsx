@@ -27,15 +27,27 @@ function Row({ el, index, count, freqHz, dispatch }: { el: CircuitElement; index
       </div>
       <div className="el-controls">
         <input type="range" min={0} max={1000} value={sliderT(el.value, el.kind)} aria-label={`${meta.label} slider`}
-          onChange={(e) => dispatch({ type: 'updateElement', id: el.id, patch: { value: valueFromT(Number(e.target.value), el.kind) }, coalesce: `v-${el.id}` })} />
+          onChange={(e) => dispatch({ type: 'updateElement', id: el.id, patch: { value: valueFromT(Number(e.target.value), el.kind) }, coalesce: `v-${el.id}` })}
+          onPointerUp={() => dispatch({ type: 'endCoalesce' })}
+          onKeyUp={() => dispatch({ type: 'endCoalesce' })}
+          onBlur={() => dispatch({ type: 'endCoalesce' })} />
         <input key={display} type="number" step="any" defaultValue={display} aria-label={`${meta.label} value in ${meta.unit}`}
-          onBlur={(e) => { const v = Number(e.target.value) / meta.toDisplay; if (Number.isFinite(v) && v > 0) dispatch({ type: 'updateElement', id: el.id, patch: { value: v } }) }}
+          onBlur={(e) => {
+            const n = Number(e.target.value)
+            if (n === Number((el.value * meta.toDisplay).toPrecision(4))) return
+            const v = n / meta.toDisplay
+            if (Number.isFinite(v) && v > 0) dispatch({ type: 'updateElement', id: el.id, patch: { value: v } })
+          }}
           onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
         <span className="el-unit">{meta.unit}</span>
         {isLine && (
           <>
             <input key={el.lineZ0} type="number" className="el-z0" defaultValue={el.lineZ0 ?? 50} aria-label="Line impedance"
-              onBlur={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0) dispatch({ type: 'updateElement', id: el.id, patch: { lineZ0: v } }) }}
+              onBlur={(e) => {
+                const v = Number(e.target.value)
+                if (v === (el.lineZ0 ?? 50)) return
+                if (Number.isFinite(v) && v > 0) dispatch({ type: 'updateElement', id: el.id, patch: { lineZ0: v } })
+              }}
               onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />
             <span className="el-unit">Ω line</span>
           </>

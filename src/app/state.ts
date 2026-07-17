@@ -49,15 +49,23 @@ export const newId = (): string => crypto.randomUUID().slice(0, 8)
 export function reduce(s: AppState, a: Action): AppState {
   switch (a.type) {
     case 'setZ0':
+      if (a.z0 === s.z0) return s
       return Number.isFinite(a.z0) && a.z0 > 0 ? { ...s, z0: a.z0 } : s
     case 'setFreq':
+      if (a.freqHz === s.freqHz) return s
       return Number.isFinite(a.freqHz) && a.freqHz > 0 ? { ...s, freqHz: a.freqHz } : s
     case 'setLoad':
+      if (a.re === s.loadRe && a.im === s.loadIm) return s
       return Number.isFinite(a.re) && Number.isFinite(a.im) && a.re >= 0 ? { ...s, loadRe: a.re, loadIm: a.im } : s
     case 'addElement':
       return { ...s, elements: [...s.elements, { id: newId(), kind: a.kind, enabled: true, ...ELEMENT_DEFAULTS[a.kind] }] }
-    case 'updateElement':
+    case 'updateElement': {
+      const el = s.elements.find((e) => e.id === a.id)
+      if (!el) return s
+      const keys = Object.keys(a.patch) as (keyof typeof a.patch)[]
+      if (keys.every((k) => a.patch[k] === el[k])) return s
       return { ...s, elements: s.elements.map((e) => (e.id === a.id ? { ...e, ...a.patch } : e)) }
+    }
     case 'toggleElement':
       return { ...s, elements: s.elements.map((e) => (e.id === a.id ? { ...e, enabled: !e.enabled } : e)) }
     case 'removeElement':
@@ -72,8 +80,11 @@ export function reduce(s: AppState, a: Action): AppState {
     }
     case 'replaceChain':
       return { ...s, elements: a.elements }
-    case 'setView':
+    case 'setView': {
+      const keys = Object.keys(a.patch) as (keyof typeof a.patch)[]
+      if (keys.every((k) => a.patch[k] === s.view[k])) return s
       return { ...s, view: { ...s.view, ...a.patch } }
+    }
     case 'loadState':
       return a.state
   }

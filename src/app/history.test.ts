@@ -42,6 +42,25 @@ describe('withHistory', () => {
     const h = run({ type: 'set', n: 1 })
     expect(red(h, { type: 'set', n: 1 })).toBe(h)
   })
+  test('endCoalesce splits two drags into two undo steps', () => {
+    let h = run(
+      { type: 'set', n: 1 },
+      { type: 'set', n: 2, coalesce: 'drag' },
+      { type: 'set', n: 3, coalesce: 'drag' },
+      { type: 'endCoalesce' },
+      { type: 'set', n: 4, coalesce: 'drag' },
+      { type: 'set', n: 5, coalesce: 'drag' },
+    )
+    expect(h.present.n).toBe(5)
+    h = red(h, { type: 'undo' })
+    expect(h.present.n).toBe(3)   // second drag undone as one step
+    h = red(h, { type: 'undo' })
+    expect(h.present.n).toBe(1)
+  })
+  test('endCoalesce on a fresh history returns the same reference', () => {
+    const h0 = initHistory<S>({ n: 0 })
+    expect(red(h0, { type: 'endCoalesce' })).toBe(h0)
+  })
   test('past capped at 100', () => {
     let h = initHistory<S>({ n: 0 })
     for (let i = 1; i <= 150; i++) h = red(h, { type: 'set', n: i })

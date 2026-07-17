@@ -44,4 +44,14 @@ describe('reducer', () => {
     expect(s.view.showVswr).toBe(true)
     expect(s.view.showQ).toBe(false)
   })
+  test('no-op actions return the same reference', () => {
+    expect(reduce(initialState, { type: 'setZ0', z0: initialState.z0 })).toBe(initialState)
+    expect(reduce(initialState, { type: 'setLoad', re: initialState.loadRe, im: initialState.loadIm })).toBe(initialState)
+    expect(reduce(initialState, { type: 'setFreq', freqHz: initialState.freqHz })).toBe(initialState)
+    let s = run({ type: 'addElement', kind: 'seriesL' })
+    const id = s.elements[0].id
+    expect(reduce(s, { type: 'updateElement', id, patch: { value: s.elements[0].value } })).toBe(s)
+    expect(reduce(s, { type: 'updateElement', id: 'missing', patch: { value: 1 } })).toBe(s)
+    expect(reduce(s, { type: 'setView', patch: { gridMode: s.view.gridMode } })).toBe(s)
+  })
 })

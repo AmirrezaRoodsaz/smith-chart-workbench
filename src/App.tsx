@@ -41,6 +41,16 @@ export default function App() {
     return () => clearTimeout(t)
   }, [state])
 
+  // pasting a share link into a running tab: load the new state (replaceState above doesn't fire hashchange, so no loop)
+  useEffect(() => {
+    const h = () => {
+      const s = decodeState(location.hash.slice(1))
+      if (s) dispatch({ type: 'loadState', state: s })
+    }
+    window.addEventListener('hashchange', h)
+    return () => window.removeEventListener('hashchange', h)
+  }, [])
+
   // Ctrl/Cmd+Z undo, +Shift+Z / +Y redo (not while typing in inputs)
   useEffect(() => {
     const h = (e: KeyboardEvent) => {

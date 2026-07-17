@@ -1,5 +1,5 @@
 import type { ElementKind } from '../core/elements'
-import type { Dispatch } from '../App'
+import type { Dispatch } from './state'
 import { KIND_META } from './elementMeta'
 
 const ORDER: ElementKind[] = ['seriesL', 'seriesC', 'seriesR', 'shuntL', 'shuntC', 'shuntR', 'line', 'stubOpen', 'stubShort']

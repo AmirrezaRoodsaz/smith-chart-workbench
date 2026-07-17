@@ -2,8 +2,7 @@ import { useMemo } from 'react'
 import { abs, cx } from '../core/complex'
 import { lNetworkSolutions, stubMatchSolutions } from '../core/synthesis'
 import { gammaFromZ } from '../core/transform'
-import type { Dispatch } from '../App'
-import { newId, type AppState } from './state'
+import { newId, type AppState, type Dispatch } from './state'
 
 export function AutoMatchPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch }) {
   const { loadRe, loadIm, z0, freqHz } = state

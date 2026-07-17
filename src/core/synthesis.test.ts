@@ -48,4 +48,18 @@ describe('stubMatchSolutions', () => {
     expect(sols.length).toBeGreaterThanOrEqual(1)
     for (const s of sols) expect(matches(s, cx(50, 80), 50, 14.2e6)).toBeLessThan(1e-4)
   })
+  test('load already on the g=1 circle (25+25j) still yields stub solutions', () => {
+    const sols = stubMatchSolutions(cx(25, 25), 50, 14.2e6)
+    expect(sols.length).toBeGreaterThanOrEqual(1)
+    for (const s of sols) {
+      expect(matches(s, cx(25, 25), 50, 14.2e6)).toBeLessThan(1e-4)
+      for (const e of s.elements) expect(e.value).toBeGreaterThanOrEqual(0.01)
+    }
+  })
+  test('already-matched 50Ω load yields the half-wave line-only solution', () => {
+    const sols = stubMatchSolutions(cx(50, 0), 50, 14.2e6)
+    expect(sols.length).toBeGreaterThanOrEqual(1)
+    expect(sols[0].elements).toHaveLength(1)
+    expect(sols[0].elements[0].kind).toBe('line')
+  })
 })

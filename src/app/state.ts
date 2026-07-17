@@ -1,4 +1,5 @@
 import type { CircuitElement, ElementKind } from '../core/elements'
+import type { HistoryAction } from './history'
 
 export interface ViewOptions {
   gridMode: 'z' | 'y' | 'zy'
@@ -43,6 +44,8 @@ export type Action =
   | { type: 'replaceChain'; elements: CircuitElement[] }
   | { type: 'setView'; patch: Partial<ViewOptions> }
   | { type: 'loadState'; state: AppState }
+
+export type Dispatch = (a: HistoryAction<Action>) => void
 
 export const newId = (): string => crypto.randomUUID().slice(0, 8)
 

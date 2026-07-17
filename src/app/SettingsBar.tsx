@@ -1,5 +1,4 @@
-import type { Dispatch } from '../App'
-import type { AppState } from './state'
+import type { AppState, Dispatch } from './state'
 
 const BANDS: ReadonlyArray<readonly [string, number]> = [
   ['160 m', 1.9e6], ['80 m', 3.65e6], ['40 m', 7.1e6], ['30 m', 10.12e6], ['20 m', 14.2e6],

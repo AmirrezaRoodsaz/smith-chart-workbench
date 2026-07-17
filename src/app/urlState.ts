@@ -4,6 +4,7 @@ import { initialState, type AppState, type ViewOptions } from './state'
 const VERSION = 'v1'
 const KINDS = new Set(['seriesR', 'seriesL', 'seriesC', 'shuntR', 'shuntL', 'shuntC', 'line', 'stubOpen', 'stubShort'])
 const GRID_MODES = new Set(['z', 'y', 'zy'])
+const MAX_ELEMENTS = 64
 
 export function encodeState(s: AppState): string {
   const bytes = new TextEncoder().encode(JSON.stringify(s))
@@ -44,7 +45,11 @@ export function decodeState(hash: string): AppState | null {
       showQ: typeof rv.showQ === 'boolean' ? rv.showQ : initialState.view.showQ,
       showRuler: typeof rv.showRuler === 'boolean' ? rv.showRuler : initialState.view.showRuler,
     }
-    return { z0: raw.z0, freqHz: raw.freqHz, loadRe: raw.loadRe, loadIm: raw.loadIm, elements: raw.elements, view }
+    const elements: CircuitElement[] = (raw.elements as CircuitElement[]).slice(0, MAX_ELEMENTS).map((e) => ({
+      id: e.id, kind: e.kind, value: e.value, enabled: e.enabled,
+      ...(e.lineZ0 !== undefined ? { lineZ0: e.lineZ0 } : {}),
+    }))
+    return { z0: raw.z0, freqHz: raw.freqHz, loadRe: raw.loadRe, loadIm: raw.loadIm, elements, view }
   } catch {
     return null
   }

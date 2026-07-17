@@ -1,23 +1,21 @@
 import type { CircuitElement } from '../core/elements'
 import { degToMeters, formatEng } from '../core/units'
-import type { Dispatch } from '../App'
-import type { AppState } from './state'
+import type { AppState, Dispatch } from './state'
 import { KIND_META, sliderT, valueFromT } from './elementMeta'
 
-const CORE_UNIT: Record<string, string> = { nH: 'H', pF: 'F', 'Ω': 'Ω', '°': '°' }
+const CORE_UNIT: Record<string, string> = { nH: 'H', pF: 'F', 'Ω': 'Ω' }
 
 function Row({ el, index, count, freqHz, dispatch }: { el: CircuitElement; index: number; count: number; freqHz: number; dispatch: Dispatch }) {
   const meta = KIND_META[el.kind]
   const isLine = el.kind === 'line' || el.kind === 'stubOpen' || el.kind === 'stubShort'
   const display = Number((el.value * meta.toDisplay).toPrecision(4))
+  const valText = meta.unit === '°' ? `${el.value.toFixed(1)}° (${(el.value / 360).toFixed(3)}λ ≈ ${(degToMeters(el.value, freqHz) * 1000).toFixed(0)} mm)` : formatEng(el.value, CORE_UNIT[meta.unit])
   return (
     <li className={el.enabled ? 'el-row' : 'el-row el-off'}>
       <div className="el-head">
-        <span className="el-swatch" style={{ background: `var(--arc-${index % 6})` }} />
+        <span className="el-swatch" aria-hidden="true" style={{ background: `var(--arc-${index % 6})` }} />
         <span className="el-name">{meta.label}</span>
-        <span className="el-val">
-          {meta.unit === '°' ? `${el.value.toFixed(1)}° (${(el.value / 360).toFixed(3)}λ ≈ ${(degToMeters(el.value, freqHz) * 1000).toFixed(0)} mm)` : formatEng(el.value, CORE_UNIT[meta.unit])}
-        </span>
+        <span className="el-val">{valText}</span>
         <span className="el-btns">
           <button disabled={index === 0} onClick={() => dispatch({ type: 'moveElement', id: el.id, dir: -1 })} aria-label="Move up">↑</button>
           <button disabled={index === count - 1} onClick={() => dispatch({ type: 'moveElement', id: el.id, dir: 1 })} aria-label="Move down">↓</button>
@@ -26,7 +24,7 @@ function Row({ el, index, count, freqHz, dispatch }: { el: CircuitElement; index
         </span>
       </div>
       <div className="el-controls">
-        <input type="range" min={0} max={1000} value={sliderT(el.value, el.kind)} aria-label={`${meta.label} slider`}
+        <input type="range" min={0} max={1000} value={sliderT(el.value, el.kind)} aria-label={`${meta.label} slider`} aria-valuetext={valText}
           onChange={(e) => dispatch({ type: 'updateElement', id: el.id, patch: { value: valueFromT(Number(e.target.value), el.kind) }, coalesce: `v-${el.id}` })}
           onPointerUp={() => dispatch({ type: 'endCoalesce' })}
           onKeyUp={() => dispatch({ type: 'endCoalesce' })}

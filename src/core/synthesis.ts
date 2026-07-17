@@ -6,6 +6,7 @@ import { formatEng } from './units'
 
 export interface MatchSolution { label: string; elements: CircuitElement[] }
 
+// ponytail: uid grows for the process lifetime; it's only an id counter
 let uid = 0
 const mk = (kind: ElementKind, value: number, lineZ0?: number): CircuitElement =>
   ({ id: `m${uid++}`, kind, value, lineZ0, enabled: true })
@@ -47,6 +48,7 @@ export function lNetworkSolutions(zLoad: Complex, z0: number, fHz: number): Matc
   const G = R / d
   const BL = -X / d
 
+  // X1/B1 are the NEGATED post-element reactance/susceptance; the call sites negate again. Intentional — do not "fix" the double negation.
   const dA = G / z0 - G * G
   if (dA >= 0) {
     for (const sgn of [1, -1] as const) {
@@ -88,7 +90,11 @@ export function stubMatchSolutions(zLoad: Complex, z0: number, fHz: number): Mat
       (z0 * (RL * RL + (XL + z0 * t) ** 2))
     let lDeg = (Math.atan(-B * z0) * 180) / Math.PI           // open stub: tan(βl) = -B·z0
     if (lDeg < 0) lDeg += 180
-    const s = verified([mk('line', dDeg, z0), mk('stubOpen', lDeg, z0)], zLoad, z0, fHz)
+    if (dDeg < 0.01) dDeg = 180                                // zero-length line → half-wave (identity)
+    const els = lDeg < 0.01
+      ? [mk('line', dDeg, z0)]                                 // no stub needed
+      : [mk('line', dDeg, z0), mk('stubOpen', lDeg, z0)]
+    const s = verified(els, zLoad, z0, fHz)
     if (s) out.push(s)
   }
   return out

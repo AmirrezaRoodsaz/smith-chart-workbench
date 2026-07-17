@@ -9,7 +9,7 @@ import { SettingsBar } from './app/SettingsBar'
 import { ElementPalette } from './app/ElementPalette'
 import { ElementList } from './app/ElementList'
 import { AutoMatchPanel } from './app/AutoMatchPanel'
-import { initHistory, withHistory, type HistoryAction } from './app/history'
+import { initHistory, withHistory } from './app/history'
 import { initialState, reduce, type Action, type AppState } from './app/state'
 import { decodeState, encodeState } from './app/urlState'
 
@@ -20,8 +20,6 @@ function initialTheme(): 'light' | 'dark' {
 }
 
 const historyReducer = withHistory<AppState, Action>(reduce)
-
-export type Dispatch = (a: HistoryAction<Action>) => void
 
 export default function App() {
   const [theme, setTheme] = useState(initialTheme)
@@ -76,7 +74,7 @@ export default function App() {
     const gLoad = gammaFromZ(zLoad, state.z0)
     const gIn = gammaFromZ(stages[stages.length - 1], state.z0)
     const markers: ChartMarker[] = [{ gamma: gLoad, kind: 'load' }, { gamma: gIn, kind: 'input' }]
-    return { arcs, markers, vswr: vswrFromGamma(gIn), gIn }
+    return { arcs, markers, vswr: vswrFromGamma(gIn) }
   }, [state])
 
   const vswrClass = derived.vswr < 1.5 ? 'good' : derived.vswr < 2 ? 'ok' : 'bad'

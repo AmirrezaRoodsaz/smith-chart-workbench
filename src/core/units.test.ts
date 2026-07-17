@@ -18,4 +18,9 @@ describe('units', () => {
     expect(degToMeters(302, 1.085e9, 0.66) * 1000).toBeCloseTo(153, 0)
     expect(metersToDeg(degToMeters(90, 1e9), 1e9)).toBeCloseTo(90, 9)
   })
+  test('formatEng rolls to next prefix when rounding crosses 1000', () => {
+    expect(formatEng(999.95e6, 'Hz')).toBe('1.00 GHz')
+    expect(formatEng(-999.95e6, 'Hz')).toBe('-1.00 GHz')
+    expect(formatEng(999.4e6, 'Hz')).toBe('999 MHz')
+  })
 })

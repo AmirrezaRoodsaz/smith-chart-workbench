@@ -9,10 +9,14 @@ export function formatEng(value: number, unit: string, digits = 3): string {
   if (!Number.isFinite(value)) return '∞'
   if (value === 0) return `0 ${unit}`.trim()
   const mag = Math.abs(value)
-  const [factor, prefix] = PREFIXES.find(([f]) => mag >= f) ?? PREFIXES[PREFIXES.length - 1]
-  const scaled = value / factor
-  // Nudge magnitude up by 1e-14 relative to fix float rounding, sign-symmetric
-  const corrected = scaled * (1 + 1e-14)
+  let idx = PREFIXES.findIndex(([f]) => mag >= f)
+  if (idx === -1) idx = PREFIXES.length - 1
+  let [factor, prefix] = PREFIXES[idx]
+  let corrected = (value / factor) * (1 + 1e-14)
+  if (Math.abs(Number(corrected.toPrecision(digits))) >= 1000 && idx > 0) {
+    ;[factor, prefix] = PREFIXES[idx - 1]
+    corrected = (value / factor) * (1 + 1e-14)
+  }
   return `${corrected.toPrecision(digits)} ${prefix}${unit}`.trim()
 }
 

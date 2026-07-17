@@ -77,4 +77,18 @@ describe('network evaluation', () => {
       expect(Number.isFinite(p.im)).toBe(true)
     }
   })
+  test('stubShort arc is continuous via equivalent-shunt sweep (45°, inductive)', () => {
+    const stub: CircuitElement = { id: 's1', kind: 'stubShort', value: 45, lineZ0: 50, enabled: true }
+    const pts = arcPoints(cx(50, 74), stub, 1.085e9, 50)
+    expect(abs(sub(pts[0], gammaFromZ(cx(50, 74), 50)))).toBeCloseTo(0, 9)
+    expect(abs(sub(pts[1], pts[0]))).toBeLessThan(0.1)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(cx(50, 74), stub, 1.085e9), 50)))).toBeCloseTo(0, 6)
+    for (const p of pts) { expect(Number.isFinite(p.re)).toBe(true); expect(Number.isFinite(p.im)).toBe(true) }
+  })
+  test('stubShort arc continuous for θ>90° (135°, capacitive equivalent)', () => {
+    const stub: CircuitElement = { id: 's2', kind: 'stubShort', value: 135, lineZ0: 50, enabled: true }
+    const pts = arcPoints(cx(50, 74), stub, 1.085e9, 50)
+    expect(abs(sub(pts[1], pts[0]))).toBeLessThan(0.1)
+    expect(abs(sub(pts[64], gammaFromZ(transformImpedance(cx(50, 74), stub, 1.085e9), 50)))).toBeCloseTo(0, 6)
+  })
 })

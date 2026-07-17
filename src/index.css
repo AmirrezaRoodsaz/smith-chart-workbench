@@ -90,3 +90,7 @@ input, select { background: var(--bg); color: var(--fg); border: 1px solid var(-
 .el-z0 { width: 3.4rem; }
 .el-unit { font-size: 0.75rem; color: var(--grid-emph); }
 .hint { font-size: 0.8rem; color: var(--grid-emph); }
+
+.automatch ul { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
+.automatch button { width: 100%; text-align: left; border: 1px solid var(--grid); background: none; color: var(--fg); border-radius: 6px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 0.78rem; }
+.automatch button:hover { border-color: var(--accent); }

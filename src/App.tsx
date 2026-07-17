@@ -8,6 +8,7 @@ import { ReadoutPanel } from './app/ReadoutPanel'
 import { SettingsBar } from './app/SettingsBar'
 import { ElementPalette } from './app/ElementPalette'
 import { ElementList } from './app/ElementList'
+import { AutoMatchPanel } from './app/AutoMatchPanel'
 import { initHistory, withHistory, type HistoryAction } from './app/history'
 import { initialState, reduce, type Action, type AppState } from './app/state'
 import { decodeState, encodeState } from './app/urlState'
@@ -92,6 +93,7 @@ export default function App() {
         <aside className="sidebar">
           <ElementPalette dispatch={dispatch} />
           <ElementList state={state} dispatch={dispatch} />
+          <AutoMatchPanel state={state} dispatch={dispatch} />
         </aside>
         <div className="chart-area">
           <SmithChart

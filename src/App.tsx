@@ -6,6 +6,8 @@ import { pathFrom } from './chart/geometry'
 import { SmithChart, type ChartArc, type ChartMarker } from './chart/SmithChart'
 import { ReadoutPanel } from './app/ReadoutPanel'
 import { SettingsBar } from './app/SettingsBar'
+import { ElementPalette } from './app/ElementPalette'
+import { ElementList } from './app/ElementList'
 import { initHistory, withHistory, type HistoryAction } from './app/history'
 import { initialState, reduce, type Action, type AppState } from './app/state'
 import { decodeState, encodeState } from './app/urlState'
@@ -87,7 +89,10 @@ export default function App() {
       </header>
       <SettingsBar state={state} dispatch={dispatch} />
       <main className="workbench">
-        <aside className="sidebar" id="sidebar-slot" />
+        <aside className="sidebar">
+          <ElementPalette dispatch={dispatch} />
+          <ElementList state={state} dispatch={dispatch} />
+        </aside>
         <div className="chart-area">
           <SmithChart
             onHoverGamma={setHoverGamma}

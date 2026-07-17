@@ -69,3 +69,24 @@ body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-ser
 .vswr-badge.bad { background: #c8401a33; color: #c8401a; }
 input, select { background: var(--bg); color: var(--fg); border: 1px solid var(--grid); border-radius: 4px; padding: 0.15rem 0.3rem; }
 @media (max-width: 900px) { .workbench { flex-direction: column; } .sidebar { width: auto; } .chart-area { flex-direction: column; align-items: center; } }
+
+.sidebar h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--grid-emph); margin-bottom: 0.4rem; }
+.palette-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+.palette-grid button { border: 1px solid var(--grid); background: none; color: var(--fg); border-radius: 6px; padding: 0.35rem 0.2rem; cursor: pointer; font-size: 0.8rem; }
+.palette-grid button:hover { border-color: var(--accent); }
+.el-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.el-row { border: 1px solid var(--grid); border-radius: 8px; padding: 0.45rem 0.6rem; }
+.el-off { opacity: 0.45; }
+.el-head { display: flex; align-items: center; gap: 0.4rem; }
+.el-swatch { width: 0.7rem; height: 0.7rem; border-radius: 2px; flex-shrink: 0; }
+.el-name { font-weight: 600; font-size: 0.85rem; }
+.el-val { font-size: 0.75rem; color: var(--grid-emph); margin-left: auto; }
+.el-btns { display: flex; gap: 0.15rem; }
+.el-btns button { border: none; background: none; cursor: pointer; color: var(--fg); padding: 0.1rem 0.25rem; }
+.el-btns button:disabled { opacity: 0.3; }
+.el-controls { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.35rem; }
+.el-controls input[type='range'] { flex: 1; }
+.el-controls input[type='number'] { width: 4.6rem; }
+.el-z0 { width: 3.4rem; }
+.el-unit { font-size: 0.75rem; color: var(--grid-emph); }
+.hint { font-size: 0.8rem; color: var(--grid-emph); }

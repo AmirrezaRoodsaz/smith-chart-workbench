@@ -13,6 +13,8 @@ import { AutoMatchPanel } from './app/AutoMatchPanel'
 import { initHistory, withHistory } from './app/history'
 import { initialState, reduce, type Action, type AppState } from './app/state'
 import { decodeState, encodeState } from './app/urlState'
+import { exportChartPng } from './app/exportPng'
+import { networkSummary } from './app/summary'
 import { parseTouchstone, TouchstoneError, type TouchstoneData, type SweepPoint } from './core/touchstone'
 import { sweepChain, interpZ, nearestIndex } from './core/sweep'
 
@@ -137,6 +139,11 @@ export default function App() {
           <button onClick={() => dispatch({ type: 'undo' })} disabled={hist.past.length === 0} aria-label="Undo">↶</button>
           <button onClick={() => dispatch({ type: 'redo' })} disabled={hist.future.length === 0} aria-label="Redo">↷</button>
           <button onClick={() => navigator.clipboard.writeText(location.href)} aria-label="Copy share link">🔗</button>
+          <button aria-label="Export chart as PNG" onClick={() => {
+            const svg = document.querySelector<SVGSVGElement>('svg.smith-chart')
+            if (svg) void exportChartPng(svg, getComputedStyle(document.body).backgroundColor)
+          }}>📷</button>
+          <button aria-label="Copy network summary" onClick={() => navigator.clipboard.writeText(networkSummary(state, derived.vswr))}>📋</button>
           <button className="theme-toggle" aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? '☀️' : '🌙'}

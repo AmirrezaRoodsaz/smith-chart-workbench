@@ -34,7 +34,7 @@ export const ELEMENT_DEFAULTS: Record<ElementKind, { value: number; lineZ0?: num
 
 export type Action =
   | { type: 'setZ0'; z0: number }
-  | { type: 'setFreq'; freqHz: number }
+  | { type: 'setFreq'; freqHz: number; coalesce?: string }
   | { type: 'setLoad'; re: number; im: number }
   | { type: 'addElement'; kind: ElementKind }
   | { type: 'updateElement'; id: string; patch: Partial<Pick<CircuitElement, 'value' | 'lineZ0'>>; coalesce?: string }

@@ -5,6 +5,7 @@ import { gammaFromZ, vswrFromGamma } from './core/transform'
 import { pathFrom } from './chart/geometry'
 import { SmithChart, type ChartArc, type ChartMarker, type ChartTrace } from './chart/SmithChart'
 import { ReadoutPanel } from './app/ReadoutPanel'
+import { VswrStrip, type StripSeries } from './app/VswrStrip'
 import { SettingsBar } from './app/SettingsBar'
 import { ElementPalette } from './app/ElementPalette'
 import { ElementList } from './app/ElementList'
@@ -102,6 +103,8 @@ export default function App() {
     let traces: ChartTrace[] = []
     let freqMarker: Complex | null = null
     let matchedSweep: SweepPoint[] | null = null
+    let stripRaw: StripSeries[] = []
+    let stripMatched: StripSeries[] = []
     if (sweep) {
       const raw = sweep.data.points
       const matched = sweepChain(raw, state.elements, state.freqHz)
@@ -112,9 +115,11 @@ export default function App() {
       ]
       const zm = interpZ(matched, state.freqHz)
       if (zm) freqMarker = gammaFromZ(zm, state.z0)
+      stripRaw = raw.map((p) => ({ fHz: p.fHz, s: vswrFromGamma(gammaFromZ(p.z, state.z0)) }))
+      stripMatched = matched.map((p) => ({ fHz: p.fHz, s: vswrFromGamma(gammaFromZ(p.z, state.z0)) }))
     }
 
-    return { zLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep }
+    return { zLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched }
   }, [state, sweep])
 
   const fileZ = sweep ? interpZ(sweep.data.points, state.freqHz) : null
@@ -155,17 +160,22 @@ export default function App() {
           <AutoMatchPanel state={state} dispatch={dispatch} zRe={derived.zLoad.re} zIm={derived.zLoad.im} />
         </aside>
         <div className="chart-area">
-          <SmithChart
-            onHoverGamma={setHoverGamma}
-            gridMode={state.view.gridMode}
-            showVswr={state.view.showVswr}
-            showQ={state.view.showQ}
-            showRuler={state.view.showRuler}
-            arcs={derived.arcs}
-            markers={derived.markers}
-            traces={derived.traces}
-            freqMarker={derived.freqMarker}
-          />
+          <div className="chart-col">
+            <SmithChart
+              onHoverGamma={setHoverGamma}
+              gridMode={state.view.gridMode}
+              showVswr={state.view.showVswr}
+              showQ={state.view.showQ}
+              showRuler={state.view.showRuler}
+              arcs={derived.arcs}
+              markers={derived.markers}
+              traces={derived.traces}
+              freqMarker={derived.freqMarker}
+            />
+            {sweep && (
+              <VswrStrip raw={derived.stripRaw} matched={derived.stripMatched} freqHz={state.freqHz} dispatch={dispatch} />
+            )}
+          </div>
           <ReadoutPanel gamma={hoverGamma} z0={state.z0} />
         </div>
       </main>

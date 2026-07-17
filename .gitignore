@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .xfiResults/
+
+test-results/
+playwright-report/

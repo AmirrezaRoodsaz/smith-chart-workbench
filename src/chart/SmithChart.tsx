@@ -8,6 +8,7 @@ export const HOME_VIEW: ViewBox = { x: -1.15, y: -1.15, w: 2.3 }
 
 export interface ChartArc { id: string; d: string; colorIndex: number }
 export interface ChartMarker { gamma: Complex; kind: 'load' | 'input' }
+export interface ChartTrace { id: string; d: string; className: string }
 
 export interface SmithChartProps {
   onHoverGamma?: (g: Complex | null) => void
@@ -17,6 +18,8 @@ export interface SmithChartProps {
   showRuler?: boolean
   arcs?: ChartArc[]
   markers?: ChartMarker[]
+  traces?: ChartTrace[]
+  freqMarker?: Complex | null
 }
 
 export function clientToSvg(svg: SVGSVGElement, clientX: number, clientY: number) {
@@ -42,6 +45,8 @@ export function SmithChart({
   showRuler = false,
   arcs = [],
   markers = [],
+  traces = [],
+  freqMarker = null,
   ...props
 }: SmithChartProps) {
   const [view, setView] = useState<ViewBox>(HOME_VIEW)
@@ -168,6 +173,7 @@ export function SmithChart({
           ))}
         </g>
       )}
+      {traces.map((t) => <path key={t.id} d={t.d} className={`trace ${t.className}`} />)}
       {arcs.map((a) => (
         <path key={a.id} d={a.d} className="el-arc" style={{ stroke: `var(--arc-${a.colorIndex})` }} />
       ))}
@@ -180,6 +186,7 @@ export function SmithChart({
           className={m.kind === 'load' ? 'marker-load' : 'marker-input'}
         />
       ))}
+      {freqMarker && <circle cx={freqMarker.re} cy={-freqMarker.im} r={view.w * 0.011} className="freq-marker" />}
       <circle cx={0} cy={0} r={0.008} className="chart-center" />
       {hover && (
         <g className="crosshair">

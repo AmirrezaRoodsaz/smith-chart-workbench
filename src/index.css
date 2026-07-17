@@ -52,6 +52,10 @@ body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-ser
 .el-arc { fill: none; stroke-width: 2.5px; vector-effect: non-scaling-stroke; stroke-linecap: round; }
 .marker-load { fill: none; stroke: var(--fg); stroke-width: 2px; vector-effect: non-scaling-stroke; }
 .marker-input { fill: var(--accent); }
+.trace { fill: none; stroke-width: 2px; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.trace-raw { stroke: var(--grid-emph); opacity: 0.5; }
+.trace-matched { stroke: var(--accent); }
+.freq-marker { fill: none; stroke: var(--fg); stroke-width: 2.5px; vector-effect: non-scaling-stroke; }
 
 .settings { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; padding: 0.4rem 1rem; border-block: 1px solid var(--grid); font-size: 0.9rem; }
 .settings label { display: inline-flex; align-items: center; gap: 0.35rem; }

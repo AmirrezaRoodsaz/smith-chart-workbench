@@ -54,7 +54,10 @@ export function parseTouchstone(text: string): TouchstoneData {
     }
     // Γ at the open-circuit pole would map to infinite z — nudge inside the rim
     if (abs(sub(cx(1), g)) < 1e-9) g = cx(1 - 1e-9, g.im)
-    return { fHz: r[0] * unit, z: zFromGamma(g, refOhms) }
+    const z = zFromGamma(g, refOhms)
+    if (!Number.isFinite(z.re) || !Number.isFinite(z.im))
+      throw new TouchstoneError('File contains values outside the representable range')
+    return { fHz: r[0] * unit, z }
   })
 
   points.sort((x, y) => x.fHz - y.fHz)

@@ -53,6 +53,10 @@ describe('parseTouchstone', () => {
     const { points } = parseTouchstone('# MHz S MA R 50\n14.0 1.0 0\n')
     expect(Number.isFinite(points[0].z.re)).toBe(true)
   })
+  test('extreme values that overflow to non-finite impedance are rejected', () => {
+    expect(() => parseTouchstone('# Hz S RI R 50\n1e6 1e200 0\n')).toThrow(TouchstoneError)
+    expect(() => parseTouchstone('# Hz S DB R 50\n1e6 7000 0\n')).toThrow(TouchstoneError)
+  })
   test('rejects non-S files and garbage with friendly errors', () => {
     expect(() => parseTouchstone('# MHz Z MA R 50\n14 1 0\n')).toThrow(TouchstoneError)
     expect(() => parseTouchstone('# MHz S MA R 50\n14 banana 0\n')).toThrow(TouchstoneError)

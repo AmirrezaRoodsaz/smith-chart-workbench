@@ -4,13 +4,13 @@ import { lNetworkSolutions, stubMatchSolutions } from '../core/synthesis'
 import { gammaFromZ } from '../core/transform'
 import { newId, type AppState, type Dispatch } from './state'
 
-export function AutoMatchPanel({ state, dispatch }: { state: AppState; dispatch: Dispatch }) {
-  const { loadRe, loadIm, z0, freqHz } = state
+export function AutoMatchPanel({ state, dispatch, zRe, zIm }: { state: AppState; dispatch: Dispatch; zRe: number; zIm: number }) {
+  const { z0, freqHz } = state
   const sols = useMemo(() => {
-    const zl = cx(loadRe, loadIm)
+    const zl = cx(zRe, zIm)
     return [...lNetworkSolutions(zl, z0, freqHz), ...stubMatchSolutions(zl, z0, freqHz)]
-  }, [loadRe, loadIm, z0, freqHz])
-  const matched = abs(gammaFromZ(cx(loadRe, loadIm), z0)) < 0.01
+  }, [zRe, zIm, z0, freqHz])
+  const matched = abs(gammaFromZ(cx(zRe, zIm), z0)) < 0.01
 
   return (
     <section className="automatch">

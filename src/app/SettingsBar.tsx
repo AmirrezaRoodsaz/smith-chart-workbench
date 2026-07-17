@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+import type { Complex } from '../core/complex'
 import type { AppState, Dispatch } from './state'
 
 const BANDS: ReadonlyArray<readonly [string, number]> = [
@@ -22,8 +24,27 @@ function NumField({ value, onCommit, label, step }: { value: number; onCommit: (
   )
 }
 
-export function SettingsBar({ state, dispatch }: { state: AppState; dispatch: Dispatch }) {
+export function SettingsBar({
+  state,
+  dispatch,
+  sweepName,
+  sweepWarning,
+  importError,
+  fileZ,
+  onFile,
+  onClearFile,
+}: {
+  state: AppState
+  dispatch: Dispatch
+  sweepName: string | null
+  sweepWarning?: string
+  importError: string | null
+  fileZ: Complex | null
+  onFile: (f: File) => void
+  onClearFile: () => void
+}) {
   const freqMHz = state.freqHz / 1e6
+  const fileRef = useRef<HTMLInputElement>(null)
   return (
     <div className="settings">
       <label>Z₀
@@ -44,11 +65,30 @@ export function SettingsBar({ state, dispatch }: { state: AppState; dispatch: Di
         </select>
       </label>
       <label>Load
-        <NumField value={state.loadRe} onCommit={(v) => dispatch({ type: 'setLoad', re: v, im: state.loadIm })} label="Load resistance" />
-        +j
-        <NumField value={state.loadIm} onCommit={(v) => dispatch({ type: 'setLoad', re: state.loadRe, im: v })} label="Load reactance" />
-        Ω
+        {sweepName ? (
+          <>
+            <span className="file-chip">
+              {sweepName}
+              <button aria-label="Clear imported file" onClick={onClearFile}>✕</button>
+            </span>
+            <span className="file-z">
+              {fileZ ? `${fileZ.re.toFixed(1)} ${fileZ.im < 0 ? '-' : '+'} j${Math.abs(fileZ.im).toFixed(1)} Ω` : 'out of band'}
+            </span>
+          </>
+        ) : (
+          <>
+            <NumField value={state.loadRe} onCommit={(v) => dispatch({ type: 'setLoad', re: v, im: state.loadIm })} label="Load resistance" />
+            +j
+            <NumField value={state.loadIm} onCommit={(v) => dispatch({ type: 'setLoad', re: state.loadRe, im: v })} label="Load reactance" />
+            Ω
+          </>
+        )}
+        <button onClick={() => fileRef.current?.click()}>Load .s1p</button>
+        <input ref={fileRef} type="file" accept=".s1p,.s2p,.snp,.txt" hidden aria-label="Import Touchstone file"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = '' }} />
       </label>
+      {importError && <span className="import-error" role="alert">{importError}</span>}
+      {sweepWarning && <span className="hint">{sweepWarning}</span>}
       <span className="view-toggles">
         <label><input type="checkbox" checked={state.view.showVswr} onChange={() => dispatch({ type: 'setView', patch: { showVswr: !state.view.showVswr } })} /> VSWR</label>
         <label><input type="checkbox" checked={state.view.showQ} onChange={() => dispatch({ type: 'setView', patch: { showQ: !state.view.showQ } })} /> Q</label>

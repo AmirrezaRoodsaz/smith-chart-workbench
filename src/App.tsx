@@ -3,7 +3,7 @@ import { cx, type Complex } from './core/complex'
 import { evaluateChain, arcPoints } from './core/network'
 import { gammaFromZ, vswrFromGamma } from './core/transform'
 import { pathFrom } from './chart/geometry'
-import { SmithChart, type ChartArc, type ChartMarker } from './chart/SmithChart'
+import { SmithChart, type ChartArc, type ChartMarker, type ChartTrace } from './chart/SmithChart'
 import { ReadoutPanel } from './app/ReadoutPanel'
 import { SettingsBar } from './app/SettingsBar'
 import { ElementPalette } from './app/ElementPalette'
@@ -12,6 +12,8 @@ import { AutoMatchPanel } from './app/AutoMatchPanel'
 import { initHistory, withHistory } from './app/history'
 import { initialState, reduce, type Action, type AppState } from './app/state'
 import { decodeState, encodeState } from './app/urlState'
+import { parseTouchstone, TouchstoneError, type TouchstoneData, type SweepPoint } from './core/touchstone'
+import { sweepChain, interpZ, nearestIndex } from './core/sweep'
 
 function initialTheme(): 'light' | 'dark' {
   const saved = localStorage.getItem('smith-theme')
@@ -64,8 +66,30 @@ export default function App() {
 
   const [hoverGamma, setHoverGamma] = useState<Complex | null>(null)
 
+  const [sweep, setSweep] = useState<{ name: string; data: TouchstoneData } | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
+
+  async function handleFile(f: File) {
+    try {
+      const data = parseTouchstone(await f.text())
+      setSweep({ name: f.name, data })
+      setImportError(null)
+      const mid = data.points[Math.floor(data.points.length / 2)]
+      dispatch({ type: 'setFreq', freqHz: mid.fHz })
+    } catch (err) {
+      setImportError(err instanceof TouchstoneError ? err.message : 'Could not read that file')
+    }
+  }
+
+  function handleClearFile() {
+    setSweep(null)
+    setImportError(null)
+  }
+
   const derived = useMemo(() => {
-    const zLoad = cx(state.loadRe, state.loadIm)
+    const zLoad = sweep
+      ? (interpZ(sweep.data.points, state.freqHz) ?? sweep.data.points[nearestIndex(sweep.data.points, state.freqHz)].z)
+      : cx(state.loadRe, state.loadIm)
     const stages = evaluateChain(zLoad, state.elements, state.freqHz)
     const arcs: ChartArc[] = []
     state.elements.forEach((el, i) => {
@@ -74,8 +98,26 @@ export default function App() {
     const gLoad = gammaFromZ(zLoad, state.z0)
     const gIn = gammaFromZ(stages[stages.length - 1], state.z0)
     const markers: ChartMarker[] = [{ gamma: gLoad, kind: 'load' }, { gamma: gIn, kind: 'input' }]
-    return { arcs, markers, vswr: vswrFromGamma(gIn) }
-  }, [state])
+
+    let traces: ChartTrace[] = []
+    let freqMarker: Complex | null = null
+    let matchedSweep: SweepPoint[] | null = null
+    if (sweep) {
+      const raw = sweep.data.points
+      const matched = sweepChain(raw, state.elements, state.freqHz)
+      matchedSweep = matched
+      traces = [
+        { id: 'raw', d: pathFrom(raw.map((p) => gammaFromZ(p.z, state.z0))), className: 'trace-raw' },
+        { id: 'matched', d: pathFrom(matched.map((p) => gammaFromZ(p.z, state.z0))), className: 'trace-matched' },
+      ]
+      const zm = interpZ(matched, state.freqHz)
+      if (zm) freqMarker = gammaFromZ(zm, state.z0)
+    }
+
+    return { zLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep }
+  }, [state, sweep])
+
+  const fileZ = sweep ? interpZ(sweep.data.points, state.freqHz) : null
 
   const vswrClass = derived.vswr < 1.5 ? 'good' : derived.vswr < 2 ? 'ok' : 'bad'
 
@@ -96,12 +138,21 @@ export default function App() {
           </button>
         </div>
       </header>
-      <SettingsBar state={state} dispatch={dispatch} />
+      <SettingsBar
+        state={state}
+        dispatch={dispatch}
+        sweepName={sweep?.name ?? null}
+        sweepWarning={sweep?.data.warning}
+        importError={importError}
+        fileZ={fileZ}
+        onFile={handleFile}
+        onClearFile={handleClearFile}
+      />
       <main className="workbench">
         <aside className="sidebar">
           <ElementPalette dispatch={dispatch} />
           <ElementList state={state} dispatch={dispatch} />
-          <AutoMatchPanel state={state} dispatch={dispatch} />
+          <AutoMatchPanel state={state} dispatch={dispatch} zRe={derived.zLoad.re} zIm={derived.zLoad.im} />
         </aside>
         <div className="chart-area">
           <SmithChart
@@ -112,6 +163,8 @@ export default function App() {
             showRuler={state.view.showRuler}
             arcs={derived.arcs}
             markers={derived.markers}
+            traces={derived.traces}
+            freqMarker={derived.freqMarker}
           />
           <ReadoutPanel gamma={hoverGamma} z0={state.z0} />
         </div>

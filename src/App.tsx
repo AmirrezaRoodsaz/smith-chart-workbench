@@ -17,6 +17,7 @@ import { exportChartPng } from './app/exportPng'
 import { networkSummary } from './app/summary'
 import { parseTouchstone, TouchstoneError, type TouchstoneData, type SweepPoint } from './core/touchstone'
 import { sweepChain, interpZ, nearestIndex } from './core/sweep'
+import { MorphView } from './teach/MorphView'
 
 function initialTheme(): 'light' | 'dark' {
   const saved = localStorage.getItem('smith-theme')
@@ -68,6 +69,7 @@ export default function App() {
   }, [])
 
   const [hoverGamma, setHoverGamma] = useState<Complex | null>(null)
+  const [modal, setModal] = useState<'morph' | 'walkline' | null>(null)
 
   const [sweep, setSweep] = useState<{ name: string; data: TouchstoneData } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
@@ -133,6 +135,13 @@ export default function App() {
       <header className="app-header">
         <h1>Smith Chart</h1>
         <div className="header-tools">
+          <details className="learn-menu">
+            <summary>Learn</summary>
+            <div className="learn-items"
+              onClick={(e) => ((e.currentTarget.closest('details') as HTMLDetailsElement).open = false)}>
+              <button onClick={() => setModal('morph')}>Why does it look like this?</button>
+            </div>
+          </details>
           <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements">
             VSWR {Number.isFinite(derived.vswr) ? derived.vswr.toFixed(2) : '∞'}
           </span>
@@ -186,6 +195,7 @@ export default function App() {
           <ReadoutPanel gamma={hoverGamma} z0={state.z0} />
         </div>
       </main>
+      {modal === 'morph' && <MorphView onClose={() => setModal(null)} />}
     </div>
   )
 }

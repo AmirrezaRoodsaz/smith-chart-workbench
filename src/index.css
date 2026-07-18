@@ -109,3 +109,22 @@ input, select { background: var(--bg); color: var(--fg); border: 1px solid var(-
 .automatch ul { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
 .automatch button { width: 100%; text-align: left; border: 1px solid var(--grid); background: none; color: var(--fg); border-radius: 6px; padding: 0.4rem 0.6rem; cursor: pointer; font-size: 0.78rem; }
 .automatch button:hover { border-color: var(--accent); }
+
+/* teach dialogs + learn menu */
+.teach-dialog { border: 1px solid var(--grid); border-radius: 12px; background: var(--bg); color: var(--fg); padding: 1rem 1.25rem; max-width: min(680px, 92vw); }
+.teach-dialog::backdrop { background: rgb(0 0 0 / 45%); }
+.dialog-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.dialog-head button { background: none; border: none; color: var(--fg); cursor: pointer; font-size: 1rem; }
+.teach-blurb { color: var(--grid-emph); font-size: 0.9rem; margin-bottom: 0.75rem; max-width: 62ch; }
+.morph-svg { width: 100%; height: auto; }
+.morph-controls { display: flex; gap: 0.75rem; align-items: center; }
+.morph-controls input[type='range'] { flex: 1; }
+.morph-caption { font-size: 0.85rem; color: var(--grid-emph); min-width: 13rem; text-align: right; }
+.learn-menu { position: relative; }
+.learn-menu summary { list-style: none; cursor: pointer; border: 1px solid var(--grid); border-radius: 6px; padding: 0.25rem 0.6rem; }
+.learn-menu summary::-webkit-details-marker { display: none; }
+.learn-menu[open] summary { border-color: var(--accent); }
+.learn-items { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; display: flex; flex-direction: column; gap: 2px; background: var(--bg); border: 1px solid var(--grid); border-radius: 8px; padding: 0.4rem; min-width: 15rem; box-shadow: 0 8px 24px rgb(0 0 0 / 20%); }
+.learn-items button { text-align: left; background: none; border: none; color: var(--fg); padding: 0.35rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+.learn-items button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.learn-items hr { border: none; border-top: 1px solid var(--grid); margin: 0.25rem 0; }

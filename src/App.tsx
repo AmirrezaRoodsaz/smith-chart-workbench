@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { cx, type Complex } from './core/complex'
 import { evaluateChain, arcPoints } from './core/network'
 import { gammaFromZ, vswrFromGamma } from './core/transform'
@@ -73,6 +73,8 @@ export default function App() {
   const [hoverGamma, setHoverGamma] = useState<Complex | null>(null)
   const [modal, setModal] = useState<'morph' | 'walkline' | null>(null)
   const [explain, setExplain] = useState(false)
+
+  const exitExplain = useCallback(() => setExplain(false), [])
 
   const [sweep, setSweep] = useState<{ name: string; data: TouchstoneData } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
@@ -205,7 +207,7 @@ export default function App() {
       </main>
       {modal === 'morph' && <MorphView onClose={() => setModal(null)} />}
       {modal === 'walkline' && <WalkLine gLoad={derived.gLoad} onClose={() => setModal(null)} />}
-      <ExplainLayer active={explain} onExit={() => setExplain(false)} />
+      <ExplainLayer active={explain} onExit={exitExplain} />
     </div>
   )
 }

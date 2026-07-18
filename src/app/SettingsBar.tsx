@@ -47,7 +47,7 @@ export function SettingsBar({
   const fileRef = useRef<HTMLInputElement>(null)
   return (
     <div className="settings">
-      <label>Z₀
+      <label data-explain="settings-z0">Z₀
         <select value={Z0S.includes(state.z0) ? String(state.z0) : 'custom'}
           onChange={(e) => { if (e.target.value !== 'custom') dispatch({ type: 'setZ0', z0: Number(e.target.value) }) }}
           aria-label="System impedance">
@@ -56,7 +56,7 @@ export function SettingsBar({
         </select>
         <NumField value={state.z0} onCommit={(v) => dispatch({ type: 'setZ0', z0: v })} label="Z0 ohms" />
       </label>
-      <label>f
+      <label data-explain="settings-freq">f
         <NumField value={Number(freqMHz.toPrecision(6))} onCommit={(v) => dispatch({ type: 'setFreq', freqHz: v * 1e6 })} label="Frequency MHz" />
         MHz
         <select value="" onChange={(e) => { const f = Number(e.target.value); if (f) dispatch({ type: 'setFreq', freqHz: f }) }} aria-label="Ham band preset">
@@ -64,7 +64,7 @@ export function SettingsBar({
           {BANDS.map(([name, f]) => <option key={name} value={f}>{name}</option>)}
         </select>
       </label>
-      <label>Load
+      <label data-explain="settings-load">Load
         {sweepName ? (
           <>
             <span className="file-chip">
@@ -90,10 +90,10 @@ export function SettingsBar({
       {importError && <span className="import-error" role="alert">{importError}</span>}
       {sweepWarning && <span className="hint">{sweepWarning}</span>}
       <span className="view-toggles">
-        <label><input type="checkbox" checked={state.view.showVswr} onChange={() => dispatch({ type: 'setView', patch: { showVswr: !state.view.showVswr } })} /> VSWR</label>
-        <label><input type="checkbox" checked={state.view.showQ} onChange={() => dispatch({ type: 'setView', patch: { showQ: !state.view.showQ } })} /> Q</label>
-        <label><input type="checkbox" checked={state.view.showRuler} onChange={() => dispatch({ type: 'setView', patch: { showRuler: !state.view.showRuler } })} /> λ ruler</label>
-        <select value={state.view.gridMode} onChange={(e) => dispatch({ type: 'setView', patch: { gridMode: e.target.value as AppState['view']['gridMode'] } })} aria-label="Grid mode">
+        <label data-explain="toggle-vswr"><input type="checkbox" checked={state.view.showVswr} onChange={() => dispatch({ type: 'setView', patch: { showVswr: !state.view.showVswr } })} /> VSWR</label>
+        <label data-explain="toggle-q"><input type="checkbox" checked={state.view.showQ} onChange={() => dispatch({ type: 'setView', patch: { showQ: !state.view.showQ } })} /> Q</label>
+        <label data-explain="toggle-ruler"><input type="checkbox" checked={state.view.showRuler} onChange={() => dispatch({ type: 'setView', patch: { showRuler: !state.view.showRuler } })} /> λ ruler</label>
+        <select data-explain="grid-mode" value={state.view.gridMode} onChange={(e) => dispatch({ type: 'setView', patch: { gridMode: e.target.value as AppState['view']['gridMode'] } })} aria-label="Grid mode">
           <option value="z">Z grid</option>
           <option value="y">Y grid</option>
           <option value="zy">Z+Y</option>

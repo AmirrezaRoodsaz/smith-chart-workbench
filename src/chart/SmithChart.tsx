@@ -134,6 +134,7 @@ export function SmithChart({
     <svg
       ref={svgRef}
       className="smith-chart"
+      data-explain="chart"
       viewBox={`${view.x} ${view.y} ${view.w} ${view.w}`}
       preserveAspectRatio="xMidYMid meet"
       onPointerDown={onPointerDown}

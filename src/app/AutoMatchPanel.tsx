@@ -13,7 +13,7 @@ export function AutoMatchPanel({ state, dispatch, zRe, zIm }: { state: AppState;
   const matched = abs(gammaFromZ(cx(zRe, zIm), z0)) < 0.01
 
   return (
-    <section className="automatch">
+    <section className="automatch" data-explain="automatch">
       <h2>Auto-match</h2>
       {matched && <p className="hint">Load is already matched.</p>}
       {!matched && sols.length === 0 && <p className="hint">No closed-form solution for this load.</p>}

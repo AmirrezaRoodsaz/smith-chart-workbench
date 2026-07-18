@@ -19,6 +19,7 @@ import { parseTouchstone, TouchstoneError, type TouchstoneData, type SweepPoint 
 import { sweepChain, interpZ, nearestIndex } from './core/sweep'
 import { MorphView } from './teach/MorphView'
 import { WalkLine } from './teach/WalkLineView'
+import { ExplainLayer } from './teach/ExplainLayer'
 
 function initialTheme(): 'light' | 'dark' {
   const saved = localStorage.getItem('smith-theme')
@@ -71,6 +72,7 @@ export default function App() {
 
   const [hoverGamma, setHoverGamma] = useState<Complex | null>(null)
   const [modal, setModal] = useState<'morph' | 'walkline' | null>(null)
+  const [explain, setExplain] = useState(false)
 
   const [sweep, setSweep] = useState<{ name: string; data: TouchstoneData } | null>(null)
   const [importError, setImportError] = useState<string | null>(null)
@@ -144,7 +146,9 @@ export default function App() {
               <button onClick={() => setModal('walkline')}>Walk the line</button>
             </div>
           </details>
-          <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements">
+          <button aria-label="Explain mode" aria-pressed={explain} className={explain ? 'explain-btn on' : 'explain-btn'}
+            onClick={() => setExplain(!explain)}>?</button>
+          <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements" data-explain="vswr-badge">
             VSWR {Number.isFinite(derived.vswr) ? derived.vswr.toFixed(2) : '∞'}
           </span>
           <button onClick={() => dispatch({ type: 'undo' })} disabled={hist.past.length === 0} aria-label="Undo">↶</button>
@@ -191,7 +195,9 @@ export default function App() {
               freqMarker={derived.freqMarker}
             />
             {sweep && (
-              <VswrStrip raw={derived.stripRaw} matched={derived.stripMatched} freqHz={state.freqHz} dispatch={dispatch} />
+              <div data-explain="strip">
+                <VswrStrip raw={derived.stripRaw} matched={derived.stripMatched} freqHz={state.freqHz} dispatch={dispatch} />
+              </div>
             )}
           </div>
           <ReadoutPanel gamma={hoverGamma} z0={state.z0} />
@@ -199,6 +205,7 @@ export default function App() {
       </main>
       {modal === 'morph' && <MorphView onClose={() => setModal(null)} />}
       {modal === 'walkline' && <WalkLine gLoad={derived.gLoad} onClose={() => setModal(null)} />}
+      <ExplainLayer active={explain} onExit={() => setExplain(false)} />
     </div>
   )
 }

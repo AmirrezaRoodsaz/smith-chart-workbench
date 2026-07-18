@@ -159,7 +159,7 @@ export default function App() {
       onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) e.preventDefault() }}
       onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) void handleFile(f) }}>
       <header className="app-header">
-        <h1>Smith Chart</h1>
+        <h1>Smith Chart Workbench</h1>
         <div className="header-tools">
           {flash && <span className="flash" role="status">{flash}</span>}
           <details className="learn-menu">

@@ -1,6 +1,9 @@
-import { useRef } from 'react'
-import type { Complex } from '../core/complex'
+import { useRef, useState } from 'react'
+import { abs, arg, cx, type Complex } from '../core/complex'
+import { gammaFromPolar, gammaFromZ, gammaMagFromVswr, vswrFromGamma, zFromGamma } from '../core/transform'
 import type { AppState, Dispatch } from './state'
+
+type LoadMode = 'z' | 'gamma' | 'vswr'
 
 const BANDS: ReadonlyArray<readonly [string, number]> = [
   ['160 m', 1.9e6], ['80 m', 3.65e6], ['40 m', 7.1e6], ['30 m', 10.12e6], ['20 m', 14.2e6],
@@ -45,6 +48,18 @@ export function SettingsBar({
 }) {
   const freqMHz = state.freqHz / 1e6
   const fileRef = useRef<HTMLInputElement>(null)
+  const [loadMode, setLoadMode] = useState<LoadMode>('z')
+  const gL = gammaFromZ(cx(state.loadRe, state.loadIm), state.z0)
+  const gMag = abs(gL)
+  const gAng = (arg(gL) * 180) / Math.PI
+  const sL = vswrFromGamma(gL)
+  const sDisp = Number.isFinite(sL) ? Number(sL.toPrecision(4)) : 999
+
+  function commitPolar(mag: number, angDeg: number) {
+    if (!(mag >= 0 && mag < 1)) return // rim/outside is non-physical for a passive load
+    const z = zFromGamma(gammaFromPolar(mag, angDeg), state.z0)
+    dispatch({ type: 'setLoad', re: z.re, im: z.im })
+  }
   return (
     <div className="settings">
       <label data-explain="settings-z0">Z₀
@@ -77,10 +92,35 @@ export function SettingsBar({
           </>
         ) : (
           <>
-            <NumField value={state.loadRe} onCommit={(v) => dispatch({ type: 'setLoad', re: v, im: state.loadIm })} label="Load resistance" />
-            +j
-            <NumField value={state.loadIm} onCommit={(v) => dispatch({ type: 'setLoad', re: state.loadRe, im: v })} label="Load reactance" />
-            Ω
+            <select value={loadMode} onChange={(e) => setLoadMode(e.target.value as LoadMode)} aria-label="Load entry mode">
+              <option value="z">R+jX</option>
+              <option value="gamma">Γ</option>
+              <option value="vswr">VSWR</option>
+            </select>
+            {loadMode === 'z' && (
+              <>
+                <NumField value={state.loadRe} onCommit={(v) => dispatch({ type: 'setLoad', re: v, im: state.loadIm })} label="Load resistance" />
+                +j
+                <NumField value={state.loadIm} onCommit={(v) => dispatch({ type: 'setLoad', re: state.loadRe, im: v })} label="Load reactance" />
+                Ω
+              </>
+            )}
+            {loadMode === 'gamma' && (
+              <>
+                <NumField value={Number(gMag.toPrecision(4))} onCommit={(v) => commitPolar(v, gAng)} label="Gamma magnitude" />
+                ∠
+                <NumField value={Number(gAng.toPrecision(4))} onCommit={(v) => commitPolar(gMag, v)} label="Gamma angle degrees" />
+                °
+              </>
+            )}
+            {loadMode === 'vswr' && (
+              <>
+                <NumField value={sDisp} onCommit={(v) => { if (v >= 1) commitPolar(gammaMagFromVswr(v), gAng) }} label="Load VSWR" />
+                ∠
+                <NumField value={Number(gAng.toPrecision(4))} onCommit={(v) => commitPolar(gMag, v)} label="VSWR angle degrees" />
+                °
+              </>
+            )}
           </>
         )}
         <button onClick={() => fileRef.current?.click()}>Load .s1p</button>

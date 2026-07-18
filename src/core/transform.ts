@@ -15,3 +15,11 @@ export const vswrFromGamma = (g: Complex): number => {
 
 export const returnLossDb = (g: Complex): number => -20 * Math.log10(abs(g))
 export const mismatchLossDb = (g: Complex): number => -10 * Math.log10(1 - abs(g) ** 2)
+
+export const gammaFromPolar = (mag: number, angDeg: number): Complex => {
+  const rad = (angDeg * Math.PI) / 180
+  return cx(mag * Math.cos(rad), mag * Math.sin(rad))
+}
+
+// |Γ| = (S − 1) / (S + 1)
+export const gammaMagFromVswr = (s: number): number => (s - 1) / (s + 1)

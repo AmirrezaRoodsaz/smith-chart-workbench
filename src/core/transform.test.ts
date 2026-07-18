@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest'
-import { abs, cx } from './complex'
-import { gammaFromZ, mismatchLossDb, returnLossDb, vswrFromGamma, yFromZ, zFromGamma } from './transform'
+import { describe, expect, it, test } from 'vitest'
+import { abs, arg, cx } from './complex'
+import { gammaFromPolar, gammaFromZ, gammaMagFromVswr, mismatchLossDb, returnLossDb, vswrFromGamma, yFromZ, zFromGamma } from './transform'
 
 describe('gamma/impedance transforms', () => {
   test('matched load: Z=50 → Γ=0', () => {
@@ -32,5 +32,24 @@ describe('gamma/impedance transforms', () => {
   test('losses: |Γ|=0.5 → RL 6.02 dB, ML 1.25 dB', () => {
     expect(returnLossDb(cx(0.5, 0))).toBeCloseTo(6.02, 2)
     expect(mismatchLossDb(cx(0.5, 0))).toBeCloseTo(1.249, 2)
+  })
+})
+
+describe('gammaFromPolar / gammaMagFromVswr', () => {
+  it('round-trips the video load through polar Γ', () => {
+    const g = gammaFromZ(cx(36, 74), 50)
+    const back = zFromGamma(gammaFromPolar(abs(g), (arg(g) * 180) / Math.PI), 50)
+    expect(back.re).toBeCloseTo(36, 9)
+    expect(back.im).toBeCloseTo(74, 9)
+  })
+  it('gammaFromPolar at 0° and 90°', () => {
+    expect(gammaFromPolar(0.5, 0).re).toBeCloseTo(0.5, 12)
+    expect(gammaFromPolar(0.5, 90).im).toBeCloseTo(0.5, 12)
+    expect(gammaFromPolar(0.5, 90).re).toBeCloseTo(0, 12)
+  })
+  it('VSWR to |Γ|: 1 → 0, 3 → 0.5, ∞-ish → →1', () => {
+    expect(gammaMagFromVswr(1)).toBe(0)
+    expect(gammaMagFromVswr(3)).toBeCloseTo(0.5, 12)
+    expect(gammaMagFromVswr(199)).toBeCloseTo(0.99, 12)
   })
 })

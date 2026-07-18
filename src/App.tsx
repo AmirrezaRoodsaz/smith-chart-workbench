@@ -18,6 +18,7 @@ import { networkSummary } from './app/summary'
 import { parseTouchstone, TouchstoneError, type TouchstoneData, type SweepPoint } from './core/touchstone'
 import { sweepChain, interpZ, nearestIndex } from './core/sweep'
 import { MorphView } from './teach/MorphView'
+import { WalkLine } from './teach/WalkLineView'
 
 function initialTheme(): 'light' | 'dark' {
   const saved = localStorage.getItem('smith-theme')
@@ -123,7 +124,7 @@ export default function App() {
       stripMatched = matched.map((p) => ({ fHz: p.fHz, s: vswrFromGamma(gammaFromZ(p.z, state.z0)) }))
     }
 
-    return { zLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched }
+    return { zLoad, gLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched }
   }, [state, sweep])
 
   const fileZ = sweep ? interpZ(sweep.data.points, state.freqHz) : null
@@ -140,6 +141,7 @@ export default function App() {
             <div className="learn-items"
               onClick={(e) => ((e.currentTarget.closest('details') as HTMLDetailsElement).open = false)}>
               <button onClick={() => setModal('morph')}>Why does it look like this?</button>
+              <button onClick={() => setModal('walkline')}>Walk the line</button>
             </div>
           </details>
           <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements">
@@ -196,6 +198,7 @@ export default function App() {
         </div>
       </main>
       {modal === 'morph' && <MorphView onClose={() => setModal(null)} />}
+      {modal === 'walkline' && <WalkLine gLoad={derived.gLoad} onClose={() => setModal(null)} />}
     </div>
   )
 }

@@ -128,3 +128,17 @@ input, select { background: var(--bg); color: var(--fg); border: 1px solid var(-
 .learn-items button { text-align: left; background: none; border: none; color: var(--fg); padding: 0.35rem 0.5rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
 .learn-items button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .learn-items hr { border: none; border-top: 1px solid var(--grid); margin: 0.25rem 0; }
+
+.walkline-row { display: flex; gap: 1rem; align-items: center; }
+.walkline-svg { flex: 1; min-width: 0; touch-action: none; }
+.walkline-mini { width: 130px; flex: none; }
+.wl-line { stroke: var(--grid-emph); stroke-width: 3; }
+.wl-env { fill: none; stroke: var(--grid); stroke-dasharray: 4 3; }
+.wl-fwd { fill: none; stroke: var(--arc-1); opacity: 0.6; stroke-width: 1.5; }
+.wl-ref { fill: none; stroke: var(--arc-2); opacity: 0.6; stroke-width: 1.5; }
+.wl-sum { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+.wl-probe { stroke: var(--fg); stroke-dasharray: 3 3; }
+.wl-probe-knob { fill: var(--accent); cursor: ew-resize; }
+.wl-label { fill: var(--grid-emph); font-size: 12px; }
+.wl-readout { font-variant-numeric: tabular-nums; color: var(--grid-emph); margin-top: 0.5rem; font-size: 0.85rem; }
+@media (max-width: 700px) { .walkline-row { flex-direction: column; } }

@@ -10,7 +10,7 @@ export function ElementPalette({ dispatch }: { dispatch: Dispatch }) {
       <h2>Add element</h2>
       <div className="palette-grid">
         {ORDER.map((k) => (
-          <button key={k} data-explain={`el-${k}`} onClick={() => dispatch({ type: 'addElement', kind: k })}>{KIND_META[k].label}</button>
+          <button key={k} data-explain={`el-${k}`} data-tour={`pal-${k}`} onClick={() => dispatch({ type: 'addElement', kind: k })}>{KIND_META[k].label}</button>
         ))}
       </div>
     </section>

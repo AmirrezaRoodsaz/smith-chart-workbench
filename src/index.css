@@ -152,3 +152,14 @@ body.explain-on [data-explain] { outline: 1.5px dashed var(--accent); outline-of
 .explain-pop p { font-size: 0.85rem; line-height: 1.45; }
 .explain-diagram { width: 84px; float: right; margin: 0 0 0.3rem 0.5rem; }
 .explain-diagram .ruler-tick { stroke: var(--grid-emph); stroke-width: 0.04; }
+
+/* guided walkthrough */
+.tour-hi { outline: 2px solid var(--accent) !important; outline-offset: 3px; border-radius: 4px; animation: tour-pulse 1.2s ease-in-out infinite; }
+@keyframes tour-pulse { 50% { outline-offset: 6px; } }
+.tour-card { position: fixed; right: 1rem; bottom: 1rem; z-index: 30; width: min(340px, calc(100vw - 2rem)); background: var(--bg); border: 1px solid var(--accent); border-radius: 12px; padding: 0.8rem 1rem; box-shadow: 0 8px 24px rgb(0 0 0 / 25%); }
+.tour-card h3 { font-size: 0.95rem; margin-bottom: 0.1rem; }
+.tour-step-n { color: var(--grid-emph); font-size: 0.75rem; }
+.tour-card p { font-size: 0.88rem; line-height: 1.45; margin: 0.4rem 0 0.6rem; }
+.tour-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.tour-btns button { border: 1px solid var(--grid); background: none; color: var(--fg); border-radius: 6px; padding: 0.3rem 0.7rem; cursor: pointer; }
+.tour-btns .primary { border-color: var(--accent); color: var(--accent); font-weight: 600; }

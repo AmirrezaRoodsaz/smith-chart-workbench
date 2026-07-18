@@ -20,6 +20,9 @@ import { sweepChain, interpZ, nearestIndex } from './core/sweep'
 import { MorphView } from './teach/MorphView'
 import { WalkLine } from './teach/WalkLineView'
 import { ExplainLayer } from './teach/ExplainLayer'
+import { WalkthroughPanel } from './teach/WalkthroughPanel'
+import { MISSIONS } from './teach/missions'
+import type { Mission } from './teach/walkthrough'
 
 function initialTheme(): 'light' | 'dark' {
   const saved = localStorage.getItem('smith-theme')
@@ -73,6 +76,7 @@ export default function App() {
   const [hoverGamma, setHoverGamma] = useState<Complex | null>(null)
   const [modal, setModal] = useState<'morph' | 'walkline' | null>(null)
   const [explain, setExplain] = useState(false)
+  const [mission, setMission] = useState<Mission | null>(null)
 
   const exitExplain = useCallback(() => setExplain(false), [])
 
@@ -106,7 +110,8 @@ export default function App() {
       if (el.enabled) arcs.push({ id: el.id, d: pathFrom(arcPoints(stages[i], el, state.freqHz, state.z0)), colorIndex: i % 6 })
     })
     const gLoad = gammaFromZ(zLoad, state.z0)
-    const gIn = gammaFromZ(stages[stages.length - 1], state.z0)
+    const zIn = stages[stages.length - 1]
+    const gIn = gammaFromZ(zIn, state.z0)
     const markers: ChartMarker[] = [{ gamma: gLoad, kind: 'load' }, { gamma: gIn, kind: 'input' }]
 
     let traces: ChartTrace[] = []
@@ -128,8 +133,16 @@ export default function App() {
       stripMatched = matched.map((p) => ({ fHz: p.fHz, s: vswrFromGamma(gammaFromZ(p.z, state.z0)) }))
     }
 
-    return { zLoad, gLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched }
+    return {
+      zLoad, gLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched,
+      zInNorm: cx(zIn.re / state.z0, zIn.im / state.z0),
+    }
   }, [state, sweep])
+
+  const tourCtx = useMemo(
+    () => ({ state, vswr: derived.vswr, zInNorm: derived.zInNorm }),
+    [state, derived],
+  )
 
   const fileZ = sweep ? interpZ(sweep.data.points, state.freqHz) : null
 
@@ -146,11 +159,15 @@ export default function App() {
               onClick={(e) => ((e.currentTarget.closest('details') as HTMLDetailsElement).open = false)}>
               <button onClick={() => setModal('morph')}>Why does it look like this?</button>
               <button onClick={() => setModal('walkline')}>Walk the line</button>
+              <hr />
+              {MISSIONS.map((m) => (
+                <button key={m.id} onClick={() => setMission(m)} title={m.blurb}>{m.title}</button>
+              ))}
             </div>
           </details>
           <button aria-label="Explain mode" aria-pressed={explain} className={explain ? 'explain-btn on' : 'explain-btn'}
             onClick={() => setExplain(!explain)}>?</button>
-          <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements" data-explain="vswr-badge">
+          <span className={`vswr-badge ${vswrClass}`} title="VSWR at the input after all elements" data-explain="vswr-badge" data-tour="vswr-badge">
             VSWR {Number.isFinite(derived.vswr) ? derived.vswr.toFixed(2) : '∞'}
           </span>
           <button onClick={() => dispatch({ type: 'undo' })} disabled={hist.past.length === 0} aria-label="Undo">↶</button>
@@ -208,6 +225,7 @@ export default function App() {
       {modal === 'morph' && <MorphView onClose={() => setModal(null)} />}
       {modal === 'walkline' && <WalkLine gLoad={derived.gLoad} onClose={() => setModal(null)} />}
       <ExplainLayer active={explain} onExit={exitExplain} />
+      {mission && <WalkthroughPanel mission={mission} ctx={tourCtx} onExit={() => setMission(null)} />}
     </div>
   )
 }

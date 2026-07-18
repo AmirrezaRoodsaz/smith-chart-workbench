@@ -147,7 +147,12 @@ input, select { background: var(--bg); color: var(--fg); border: 1px solid var(-
 .explain-btn { font-weight: 700; }
 .explain-btn.on { border-color: var(--accent) !important; color: var(--accent); }
 body.explain-on [data-explain] { outline: 1.5px dashed var(--accent); outline-offset: 2px; cursor: help; }
-.explain-pop { position: fixed; z-index: 40; width: 330px; max-width: calc(100vw - 16px); background: var(--bg); border: 1px solid var(--accent); border-radius: 10px; padding: 0.7rem 0.9rem; box-shadow: 0 8px 24px rgb(0 0 0 / 25%); }
+/* pointer-events: none — the popover has no interactive children; letting
+   clicks pass through means a click that visually lands on the popup still
+   hits the real [data-explain] control underneath, so the document-level
+   capture listener in ExplainLayer attributes it correctly instead of the
+   popup shadowing the next explain-target. */
+.explain-pop { position: fixed; z-index: 40; width: 330px; max-width: calc(100vw - 16px); background: var(--bg); border: 1px solid var(--accent); border-radius: 10px; padding: 0.7rem 0.9rem; box-shadow: 0 8px 24px rgb(0 0 0 / 25%); pointer-events: none; }
 .explain-pop h3 { font-size: 0.9rem; margin-bottom: 0.3rem; }
 .explain-pop p { font-size: 0.85rem; line-height: 1.45; }
 .explain-diagram { width: 84px; float: right; margin: 0 0 0.3rem 0.5rem; }

@@ -187,3 +187,9 @@ input[type='number'], select { background: var(--bg); color: var(--fg); border: 
   .sidebar { max-height: 40vh; }
   .tour-card { right: 0.5rem; bottom: 0.5rem; left: 0.5rem; width: auto; }
 }
+
+/* cursor-following readout tooltip (mouse hover on the chart) */
+.chart-wrap { position: relative; flex: 1; min-height: 0; display: flex; justify-content: center; }
+.chart-tip { position: absolute; z-index: 20; pointer-events: none; background: color-mix(in srgb, var(--bg) 92%, transparent); border: 1px solid var(--grid); border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; box-shadow: 0 4px 12px rgb(0 0 0 / 18%); }
+.chart-tip div { display: flex; gap: 0.6rem; justify-content: space-between; }
+.chart-tip span { color: var(--grid-emph); }

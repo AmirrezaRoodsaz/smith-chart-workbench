@@ -213,6 +213,7 @@ export default function App() {
           <div className="chart-col">
             <SmithChart
               onHoverGamma={setHoverGamma}
+              z0={state.z0}
               gridMode={state.view.gridMode}
               showVswr={state.view.showVswr}
               showQ={state.view.showQ}

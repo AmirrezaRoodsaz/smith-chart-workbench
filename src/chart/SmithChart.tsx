@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Complex } from '../core/complex'
+import { formatReadout } from '../app/format'
 import { gridPathR, gridPathX, gridValues } from './geometry'
 import { qArcPath, rulerTicks, vswrRadius, Q_VALUES, VSWR_VALUES } from './overlays'
 
@@ -12,6 +13,7 @@ export interface ChartTrace { id: string; d: string; className: string }
 
 export interface SmithChartProps {
   onHoverGamma?: (g: Complex | null) => void
+  z0?: number
   gridMode?: 'z' | 'y' | 'zy'
   showVswr?: boolean
   showQ?: boolean
@@ -39,6 +41,7 @@ function zoomAbout(v: ViewBox, px: number, py: number, factor: number): ViewBox 
 }
 
 export function SmithChart({
+  z0 = 50,
   gridMode = 'z',
   showVswr = false,
   showQ = false,
@@ -51,7 +54,10 @@ export function SmithChart({
 }: SmithChartProps) {
   const [view, setView] = useState<ViewBox>(HOME_VIEW)
   const [hover, setHover] = useState<Complex | null>(null)
+  // cursor position relative to the wrapper, mouse pointers only — drives the tooltip
+  const [hoverPx, setHoverPx] = useState<{ x: number; y: number } | null>(null)
   const svgRef = useRef<SVGSVGElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const pointers = useRef(new Map<number, { x: number; y: number }>())
 
   useEffect(() => {
@@ -78,6 +84,10 @@ export function SmithChart({
     const inside = Math.hypot(g.re, g.im) <= 1
     setHover(inside ? g : null)
     props.onHoverGamma?.(inside ? g : null)
+    if (e.pointerType === 'mouse' && inside && wrapRef.current) {
+      const r = wrapRef.current.getBoundingClientRect()
+      setHoverPx({ x: e.clientX - r.left, y: e.clientY - r.top })
+    } else setHoverPx(null)
   }
 
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
@@ -130,7 +140,12 @@ export function SmithChart({
     </>
   )
 
+  // tooltip hides while panning/pinching (a captured pointer means a gesture, not a hover)
+  const tipRows = hover && hoverPx && pointers.current.size === 0 ? formatReadout(hover, z0) : null
+  const tipRow = (label: string) => tipRows?.find((r) => r.label === label)?.value
+
   return (
+    <div ref={wrapRef} className="chart-wrap">
     <svg
       ref={svgRef}
       className="smith-chart"
@@ -143,6 +158,7 @@ export function SmithChart({
       onPointerCancel={onPointerUp}
       onPointerLeave={() => {
         setHover(null)
+        setHoverPx(null)
         props.onHoverGamma?.(null)
       }}
       onDoubleClick={() => setView(HOME_VIEW)}
@@ -196,5 +212,25 @@ export function SmithChart({
         </g>
       )}
     </svg>
+    {tipRows && hoverPx && (
+      <div
+        className="chart-tip"
+        style={{
+          // flip sides so the tip never leaves the chart area
+          ...(hoverPx.x < (wrapRef.current?.clientWidth ?? 0) / 2
+            ? { left: hoverPx.x + 14 }
+            : { right: (wrapRef.current?.clientWidth ?? 0) - hoverPx.x + 14 }),
+          ...(hoverPx.y < (wrapRef.current?.clientHeight ?? 0) * 0.6
+            ? { top: hoverPx.y + 14 }
+            : { bottom: (wrapRef.current?.clientHeight ?? 0) - hoverPx.y + 14 }),
+        }}
+      >
+        <div><span>Z</span>{tipRow('Z')}</div>
+        <div><span>Y</span>{tipRow('Y')}</div>
+        <div><span>Γ</span>{tipRow('|Γ|')} ∠ {tipRow('∠Γ')}</div>
+        <div><span>VSWR</span>{tipRow('VSWR')}</div>
+      </div>
+    )}
+    </div>
   )
 }

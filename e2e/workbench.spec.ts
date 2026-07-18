@@ -72,3 +72,15 @@ test('auto-match centers the demo load', async ({ page }) => {
   await page.locator('.automatch button').first().click()
   await expect(page.locator('.vswr-badge')).toHaveClass(/good/)
 })
+
+test('hovering the chart shows a cursor tooltip with the readout', async ({ page }) => {
+  const chart = page.locator('svg.smith-chart')
+  const box = (await chart.boundingBox())!
+  await page.mouse.move(box.x + box.width * 0.55, box.y + box.height * 0.4)
+  await expect(page.locator('.chart-tip')).toBeVisible()
+  await expect(page.locator('.chart-tip')).toContainText('VSWR')
+  await expect(page.locator('.chart-tip')).toContainText('Ω')
+  // leaving the chart hides it
+  await page.mouse.move(box.x - 40, box.y - 40)
+  await expect(page.locator('.chart-tip')).toHaveCount(0)
+})

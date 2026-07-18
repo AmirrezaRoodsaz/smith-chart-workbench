@@ -84,6 +84,7 @@ export default function App() {
   const [importError, setImportError] = useState<string | null>(null)
 
   async function handleFile(f: File) {
+    if (f.size > 2_000_000) { setImportError('File too large (2 MB max) — is that really a Touchstone file?'); return }
     try {
       const data = parseTouchstone(await f.text())
       setSweep({ name: f.name, data })
@@ -98,6 +99,12 @@ export default function App() {
   function handleClearFile() {
     setSweep(null)
     setImportError(null)
+  }
+
+  const [flash, setFlash] = useState<string | null>(null)
+  function copyText(text: string) {
+    navigator.clipboard.writeText(text).then(() => setFlash('Copied ✓'), () => setFlash('Copy failed'))
+    window.setTimeout(() => setFlash(null), 1500)
   }
 
   const derived = useMemo(() => {
@@ -136,6 +143,7 @@ export default function App() {
     return {
       zLoad, gLoad, arcs, markers, vswr: vswrFromGamma(gIn), traces, freqMarker, matchedSweep, stripRaw, stripMatched,
       zInNorm: cx(zIn.re / state.z0, zIn.im / state.z0),
+      fileZ: sweep ? interpZ(sweep.data.points, state.freqHz) : null,
     }
   }, [state, sweep])
 
@@ -144,15 +152,16 @@ export default function App() {
     [state, derived],
   )
 
-  const fileZ = sweep ? interpZ(sweep.data.points, state.freqHz) : null
-
   const vswrClass = derived.vswr < 1.5 ? 'good' : derived.vswr < 2 ? 'ok' : 'bad'
 
   return (
-    <div className="app">
+    <div className="app"
+      onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) e.preventDefault() }}
+      onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) void handleFile(f) }}>
       <header className="app-header">
         <h1>Smith Chart</h1>
         <div className="header-tools">
+          {flash && <span className="flash" role="status">{flash}</span>}
           <details className="learn-menu">
             <summary>Learn</summary>
             <div className="learn-items"
@@ -172,12 +181,12 @@ export default function App() {
           </span>
           <button onClick={() => dispatch({ type: 'undo' })} disabled={hist.past.length === 0} aria-label="Undo">↶</button>
           <button onClick={() => dispatch({ type: 'redo' })} disabled={hist.future.length === 0} aria-label="Redo">↷</button>
-          <button onClick={() => navigator.clipboard.writeText(location.href)} aria-label="Copy share link">🔗</button>
+          <button onClick={() => copyText(location.href)} aria-label="Copy share link">🔗</button>
           <button aria-label="Export chart as PNG" onClick={() => {
             const svg = document.querySelector<SVGSVGElement>('svg.smith-chart')
             if (svg) void exportChartPng(svg, getComputedStyle(document.body).backgroundColor)
           }}>📷</button>
-          <button aria-label="Copy network summary" onClick={() => navigator.clipboard.writeText(networkSummary(state, derived.vswr, derived.zLoad, sweep?.name))}>📋</button>
+          <button aria-label="Copy network summary" onClick={() => copyText(networkSummary(state, derived.vswr, derived.zLoad, sweep?.name))}>📋</button>
           <button className="theme-toggle" aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
             {theme === 'dark' ? '☀️' : '🌙'}
@@ -190,7 +199,7 @@ export default function App() {
         sweepName={sweep?.name ?? null}
         sweepWarning={sweep?.data.warning}
         importError={importError}
-        fileZ={fileZ}
+        fileZ={derived.fileZ}
         onFile={handleFile}
         onClearFile={handleClearFile}
       />

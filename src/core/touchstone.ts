@@ -15,6 +15,7 @@ export function parseTouchstone(text: string): TouchstoneData {
   let refOhms = 50
   let sawOption = false
   const rows: number[][] = []
+  let cols = 0
 
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.replace(/!.*/, '').trim()
@@ -35,15 +36,19 @@ export function parseTouchstone(text: string): TouchstoneData {
       continue
     }
     const nums = line.split(/\s+/).map(Number)
+    if (cols && nums.length !== cols) break // s2p noise section (or trailing junk): S-data is over
     if (nums.some((n) => !Number.isFinite(n)))
       throw new TouchstoneError(`Unreadable data line: "${rawLine.trim().slice(0, 40)}"`)
+    if (!cols) {
+      if (nums.length !== 3 && nums.length !== 9)
+        throw new TouchstoneError(`Expected 1-port (3 columns) or 2-port (9 columns) data, got ${nums.length} columns`)
+      cols = nums.length
+    }
     rows.push(nums)
   }
   if (rows.length === 0) throw new TouchstoneError('No data points found in file')
 
   const points: SweepPoint[] = rows.map((r) => {
-    if (r.length !== 3 && r.length !== 9)
-      throw new TouchstoneError(`Expected 1-port (3 columns) or 2-port (9 columns) data, got ${r.length} columns`)
     if (!(r[0] > 0)) throw new TouchstoneError('Frequencies must be positive')
     const [a, b] = [r[1], r[2]]
     let g: Complex

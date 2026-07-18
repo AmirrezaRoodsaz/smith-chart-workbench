@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { parseTouchstone, TouchstoneError } from './touchstone'
 
 const MA_FILE = `! test antenna
@@ -66,5 +66,18 @@ describe('parseTouchstone', () => {
     expect(() => parseTouchstone('# MHz S MA R 50\n14 banana 0\n')).toThrow(TouchstoneError)
     expect(() => parseTouchstone('')).toThrow(TouchstoneError)
     expect(() => parseTouchstone('# MHz S MA R 50\n14 0.5\n')).toThrow(TouchstoneError)
+  })
+  it('stops at an s2p noise-parameter section instead of rejecting the file', () => {
+    const text = ['# MHz S MA R 50',
+      '100 0.5 45 0.1 20 0.1 20 0.5 45',
+      '200 0.4 40 0.1 20 0.1 20 0.4 40',
+      '2 1.5 0.9 30 0.4', // noise data: 5 columns
+      '4 1.2 0.8 60 0.5',
+    ].join('\n')
+    const d = parseTouchstone(text)
+    expect(d.points).toHaveLength(2)
+  })
+  it('still rejects a file whose first data line has a bogus column count', () => {
+    expect(() => parseTouchstone('# MHz S MA R 50\n100 0.5 45 9 9')).toThrow(TouchstoneError)
   })
 })

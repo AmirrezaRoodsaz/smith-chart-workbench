@@ -163,3 +163,4 @@ body.explain-on [data-explain] { outline: 1.5px dashed var(--accent); outline-of
 .tour-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
 .tour-btns button { border: 1px solid var(--grid); background: none; color: var(--fg); border-radius: 6px; padding: 0.3rem 0.7rem; cursor: pointer; }
 .tour-btns .primary { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.flash { font-size: 0.8rem; color: var(--grid-emph); }
